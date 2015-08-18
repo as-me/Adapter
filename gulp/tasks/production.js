@@ -21,6 +21,9 @@ gulp.task('production', function () {
         fullPaths: false
     });
 
+    vendors.forEach(function (vendor) {
+        stream.external(vendor);
+    });
 
 
     return stream.bundle()
