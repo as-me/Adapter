@@ -1,0 +1,37 @@
+{
+  "name": "adapter",
+  "version": "0.1.0",
+  "description": "Adpater Interface for visualization frameworks",
+  "main": "build/adapter.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/as-me/Adapter.git"
+  },
+  "keywords": [
+    "adapter",
+    "interface"
+  ],
+  "author": "Sanjay Krishna Anbalagan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/as-me/Adapter/issues"
+  },
+  "homepage": "https://github.com/as-me/Adapter#readme",
+  "devDependencies": {
+    "babelify": "^6.1.3",
+    "browserify": "^11.0.1",
+    "d3": "^3.5.6",
+    "d3chart": "git+https://github.com/sanjay1909/D3Chart.git",
+    "gulp": "^3.9.0",
+    "gulp-jshint": "^1.11.2",
+    "gulp-minify-css": "^1.2.0",
+    "react": "^0.13.3",
+    "react-tap-event-plugin": "^0.1.7",
+    "require-dir": "^0.3.0",
+    "vinyl-source-stream": "^1.1.0",
+    "weavecore": "git+https://github.com/sanjay1909/WeaveCoreJS.git"
+  }
+}
