@@ -33,5 +33,12 @@
     "require-dir": "^0.3.0",
     "vinyl-source-stream": "^1.1.0",
     "weavecore": "git+https://github.com/sanjay1909/WeaveCoreJS.git"
+  },
+  "dependencies": {
+    "d3": "^3.5.6",
+    "d3chart": "git+https://github.com/sanjay1909/D3Chart.git",
+    "react": "^0.13.3",
+    "react-tap-event-plugin": "^0.1.7",
+    "weavecore": "git+https://github.com/sanjay1909/WeaveCoreJS.git"
   }
 }
