@@ -8,8 +8,7 @@ import "./peer/WeaveJSPeer.js";
 
 
 import './Global.js'
-import App from './components/App.js';
-import './components/D3/ScatterPlot.js';
+import './components/App.js';
 
 /*React.render( < App / > , document.body);
 d3.csv("testCereal.csv", function (d, i) {
