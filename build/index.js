@@ -1,3 +1,5 @@
+"use strict";
+
 require("./lib/Global.js");
 exports.AdapterInterface = require("./lib/AdapterInterface.js");
 exports.hook = {};
@@ -10,5 +12,5 @@ exports.peer.WeaveJSPeer = require("./lib/peer/WeaveJSPeer.js");
 
 exports.components = {};
 
-exports.components.D3 = {}
+exports.components.D3 = {};
 exports.components.D3.ScatterPlot = require("./lib/components/D3/ScatterPlot.js");
