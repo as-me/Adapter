@@ -13,7 +13,7 @@ edit the `index.html` to use the below
 instead of
 
 ```html
-<script type="text/javascript" src="//asme.github.io/Adapter/build/dist/asme-adapter.js"></script>
+<script type="text/javascript" src="//asme.github.io/Adapter/dist/asme-adapter.js"></script>
 ```
 
 You should be good to go
