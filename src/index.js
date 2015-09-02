@@ -11,4 +11,4 @@ exports.peer.WeaveJSPeer = require("./lib/peer/WeaveJSPeer.js");
 exports.components = {};
 
 exports.components.D3 = {}
-exports.components.D3.ScatterPlot = require("./lib/components/D3/ScatterPlot.js");
+exports.components.D3.ScatterPlotTool = require("./lib/components/D3/ScatterPlotTool.js");

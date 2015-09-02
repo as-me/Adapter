@@ -1,3 +1,7 @@
+/**
+ * @module adapter.peer
+ */
+
 require('weavecore');
 
 //namespace
@@ -8,25 +12,38 @@ if (typeof window === 'undefined') {
 }
 
 
-
 (function () {
-    //static Declaration
-    // set Probe and Selection keys
-    Object.defineProperty(WeaveJSInterface, 'probeKeys', {
-        value: WeaveAPI.globalHashMap.requestObject('probeKeys', weavecore.LinkableVariable, false)
-    });
 
-    Object.defineProperty(WeaveJSInterface, 'selectionKeys', {
-        value: WeaveAPI.globalHashMap.requestObject('selectionKeys', weavecore.LinkableVariable, false)
-    });
 
     //constructor
+    /**
+     * @class WeaveJSInterface
+     * @extends Interface
+     * @constructor
+     */
     function WeaveJSInterface() {
         adapter.Interface.call(this);
-        this.hooks = [];
         this.activeHook = null;
-        WeaveJSInterface.selectionKeys.addImmediateCallback({}, renderSelection.bind(this));
-        WeaveJSInterface.probeKeys.addImmediateCallback({}, renderProbe.bind(this));
+
+        Object.defineProperty(this, 'sessionable', {
+            value: true
+        });
+
+        // set Probe and Selection keys
+        Object.defineProperty(this, 'probeKeys', {
+            value: WeaveAPI.globalHashMap.requestObject('probeKeys', weavecore.LinkableVariable, false)
+        });
+
+        Object.defineProperty(this, 'selectionKeys', {
+            value: WeaveAPI.globalHashMap.requestObject('selectionKeys', weavecore.LinkableVariable, false)
+        });
+
+        Object.defineProperty(this, 'hooks', {
+            value: WeaveAPI.globalHashMap.requestObject('hooks', weavecore.LinkableHashmap, false)
+        });
+
+        this.selectionKeys.addImmediateCallback(this, renderSelection.bind(this));
+        this.probeKeys.addImmediateCallback(this, renderProbe.bind(this));
     }
 
 
@@ -55,16 +72,49 @@ if (typeof window === 'undefined') {
     }
 
     var p = WeaveJSInterface.prototype;
-    /*
-     *This function renders on the visualization library , which are hooked to it
-     * @param keys: We need to give the index value or Keys associated with that record [0,3,5]
+
+    /**
+     * This function renders on the visualization library , which are hooked to it
+     * @method doSelection
+     * @param {Array} keys We need to give the index value or Keys associated with that record [0,3,5].
      */
     p.doSelection = function (keys) {
-        WeaveJSInterface.selectionKeys.setSessionState(keys);
+        this.selectionKeys.setSessionState(keys);
     }
 
+    /**
+     * This function renders on the visualization library , which are hooked to it
+     * @method doProbe
+     * @param {Object} key We need to give the index value or Key associated with that record.
+     */
     p.doProbe = function (key) {
-        WeaveJSInterface.probeKeys.setSessionState(key);
+        this.probeKeys.setSessionState(key);
+    }
+
+    /**
+     * This function request for hook which is either instance of IlinkableObject or has sessionable property value true
+     * @method requestHook
+     * @param {String} name to identify the object in session state
+     * @param {Class} classDefn sessionable Object
+     * @return {Object} Mostly DOM element which is wrapped with sessionable propert
+     */
+    p.requestHook = function (name, classDefn) {
+        return this.hooks.requestObject(name, classDefn, false);
+    }
+
+    /**
+     * This function request for hook which is either instance of IlinkableObject or has sessionable property value true
+     * @method requestHook
+     * @param {String} name to identify the object in session state
+     * @param {Object} classDefn sessionable Object
+     * @return {Object} Mostly DOM element which is wrapped with sessionable propert
+     */
+    p.deleteHook = function (name) {
+        return this.hooks.removeObject(name);
+    }
+
+    p.loadSessionState = function () {
+
     }
 
     adapter.peer.WeaveJSInterface = WeaveJSInterface;

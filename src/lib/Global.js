@@ -38,13 +38,14 @@ if (typeof window === 'undefined') {
     var p = GlobalData.prototype;
 
     p.getData = function () {
-            return this.dataSource.getSessionState();
-        }
-        // public methods:
-        /**
-         * @method getSessionStateValue
-         * @return {Object}
-         */
+        return this.dataSource.getSessionState();
+    }
+
+    // public methods:
+    /**
+     * @method getSessionStateValue
+     * @return {Object}
+     */
     p.getSessionStateValue = function () {
         return {
             'dataSource': this.dataSource.getSessionState()

@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require(undefined), require("d3chart"), require("React"));
+		module.exports = factory(require(undefined), require("React"), require("d3chart"));
 	else if(typeof define === 'function' && define.amd)
-		define([, "d3chart", "React"], factory);
+		define([, "React", "d3chart"], factory);
 	else if(typeof exports === 'object')
-		exports["AsmeAdapter"] = factory(require(undefined), require("d3chart"), require("React"));
+		exports["AsmeAdapter"] = factory(require(undefined), require("React"), require("d3chart"));
 	else
-		root["AsmeAdapter"] = factory(root[undefined], root["d3chart"], root["React"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_8__, __WEBPACK_EXTERNAL_MODULE_9__) {
+		root["AsmeAdapter"] = factory(root[undefined], root["React"], root["d3chart"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_8__, __WEBPACK_EXTERNAL_MODULE_10__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -69,7 +69,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.components = {};
 
 	exports.components.D3 = {};
-	exports.components.D3.ScatterPlot = __webpack_require__(7);
+	exports.components.D3.ScatterPlotTool = __webpack_require__(7);
 
 /***/ },
 /* 1 */
@@ -112,6 +112,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    p.getData = function () {
 	        return this.dataSource.getSessionState();
 	    };
+
 	    // public methods:
 	    /**
 	     * @method getSessionStateValue
@@ -258,6 +259,10 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * @module adapter.peer
+	 */
+
 	'use strict';
 
 	__webpack_require__(2);
@@ -270,23 +275,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	(function () {
-	    //static Declaration
-	    // set Probe and Selection keys
-	    Object.defineProperty(WeaveJSInterface, 'probeKeys', {
-	        value: WeaveAPI.globalHashMap.requestObject('probeKeys', weavecore.LinkableVariable, false)
-	    });
-
-	    Object.defineProperty(WeaveJSInterface, 'selectionKeys', {
-	        value: WeaveAPI.globalHashMap.requestObject('selectionKeys', weavecore.LinkableVariable, false)
-	    });
 
 	    //constructor
+	    /**
+	     * @class WeaveJSInterface
+	     * @extends Interface
+	     * @constructor
+	     */
 	    function WeaveJSInterface() {
 	        adapter.Interface.call(this);
-	        this.hooks = [];
 	        this.activeHook = null;
-	        WeaveJSInterface.selectionKeys.addImmediateCallback({}, renderSelection.bind(this));
-	        WeaveJSInterface.probeKeys.addImmediateCallback({}, renderProbe.bind(this));
+
+	        Object.defineProperty(this, 'sessionable', {
+	            value: true
+	        });
+
+	        // set Probe and Selection keys
+	        Object.defineProperty(this, 'probeKeys', {
+	            value: WeaveAPI.globalHashMap.requestObject('probeKeys', weavecore.LinkableVariable, false)
+	        });
+
+	        Object.defineProperty(this, 'selectionKeys', {
+	            value: WeaveAPI.globalHashMap.requestObject('selectionKeys', weavecore.LinkableVariable, false)
+	        });
+
+	        Object.defineProperty(this, 'hooks', {
+	            value: WeaveAPI.globalHashMap.requestObject('hooks', weavecore.LinkableHashmap, false)
+	        });
+
+	        this.selectionKeys.addImmediateCallback(this, renderSelection.bind(this));
+	        this.probeKeys.addImmediateCallback(this, renderProbe.bind(this));
 	    }
 
 	    WeaveJSInterface.prototype = new adapter.Interface();
@@ -307,17 +325,48 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    var p = WeaveJSInterface.prototype;
-	    /*
-	     *This function renders on the visualization library , which are hooked to it
-	     * @param keys: We need to give the index value or Keys associated with that record [0,3,5]
+
+	    /**
+	     * This function renders on the visualization library , which are hooked to it
+	     * @method doSelection
+	     * @param {Array} keys We need to give the index value or Keys associated with that record [0,3,5].
 	     */
 	    p.doSelection = function (keys) {
-	        WeaveJSInterface.selectionKeys.setSessionState(keys);
+	        this.selectionKeys.setSessionState(keys);
 	    };
 
+	    /**
+	     * This function renders on the visualization library , which are hooked to it
+	     * @method doProbe
+	     * @param {Object} key We need to give the index value or Key associated with that record.
+	     */
 	    p.doProbe = function (key) {
-	        WeaveJSInterface.probeKeys.setSessionState(key);
+	        this.probeKeys.setSessionState(key);
 	    };
+
+	    /**
+	     * This function request for hook which is either instance of IlinkableObject or has sessionable property value true
+	     * @method requestHook
+	     * @param {String} name to identify the object in session state
+	     * @param {Class} classDefn sessionable Object
+	     * @return {Object} Mostly DOM element which is wrapped with sessionable propert
+	     */
+	    p.requestHook = function (name, classDefn) {
+	        return this.hooks.requestObject(name, classDefn, false);
+	    };
+
+	    /**
+	     * This function request for hook which is either instance of IlinkableObject or has sessionable property value true
+	     * @method requestHook
+	     * @param {String} name to identify the object in session state
+	     * @param {Object} classDefn sessionable Object
+	     * @return {Object} Mostly DOM element which is wrapped with sessionable propert
+	     */
+	    p.deleteHook = function (name) {
+	        return this.hooks.removeObject(name);
+	    };
+
+	    p.loadSessionState = function () {};
 
 	    adapter.peer.WeaveJSInterface = WeaveJSInterface;
 	})();
@@ -328,21 +377,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	__webpack_require__(8);
-
-	var _react = __webpack_require__(9);
+	var _react = __webpack_require__(8);
 
 	var _react2 = _interopRequireDefault(_react);
+
+	var _ScatterPlot = __webpack_require__(9);
+
+	var _ScatterPlot2 = _interopRequireDefault(_ScatterPlot);
+
+	__webpack_require__(2);
 
 	//namesapce
 	if (typeof window === 'undefined') {
@@ -358,21 +403,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	(function () {
-	    function scatterPlotData() {
-	        /**
-	         * @private
-	         * @property _localHM
-	         * @type weavecore.LinkableHashMap
-	         **/
-	        this._localHM = WeaveAPI.globalHashMap.requestObject("D3ScatterPlot", weavecore.LinkableHashMap);
+
+	    Object.defineProperty(ScatterPlotData, 'NS', {
+	        value: 'adapter.sessionData'
+	    });
+
+	    Object.defineProperty(ScatterPlotData, 'CLASS_NAME', {
+	        value: 'ScatterPlotData'
+	    });
+
+	    function ScatterPlotData() {
+
 	        /**
 	         * @public
-	         * @property localHashMap
+	         * @property sessionable
 	         * @readOnly
-	         * @type weavecore.LinkableHashMap
+	         * @type Booloean
 	         */
-	        Object.defineProperty(this, 'localHashMap', {
-	            value: this._localHM
+	        Object.defineProperty(this, 'sessionable', {
+	            value: true
+	        });
+
+	        /**
+	         * @public
+	         * @property ns
+	         * @readOnly
+	         * @type String
+	         */
+	        Object.defineProperty(this, 'ns', {
+	            value: 'adapter.sessionData'
 	        });
 
 	        /**
@@ -382,7 +441,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	         * @type weavecore.LinkableString
 	         */
 	        Object.defineProperty(this, 'xAxis', {
-	            value: this._localHM.requestObject("xAxis", weavecore.LinkableString)
+	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString())
 	        });
 
 	        /**
@@ -392,14 +451,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	         * @type weavecore.LinkableString
 	         */
 	        Object.defineProperty(this, 'yAxis', {
-	            value: this._localHM.requestObject("yAxis", weavecore.LinkableString)
+	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString('yAxis'))
 	        });
 
-	        this.chart = new d3Chart.Scatterplot();
+	        /**
+	         * @public
+	         * @property chart
+	         * @readOnly
+	         * @type d3Chart.Scatterplot
+	         */
+	        Object.defineProperty(this, 'chart', {
+	            value: new d3Chart.Scatterplot()
+	        });
 	    }
 
 	    // Prototypes
-	    var p = scatterPlotData.prototype;
+	    var p = ScatterPlotData.prototype;
 
 	    // public methods:
 	    /**
@@ -413,29 +480,141 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 	    };
 
-	    adapter.sessionData.scatterPlotData = new scatterPlotData();
+	    adapter.sessionData.ScatterPlotData = ScatterPlotData;
 	})();
+
+	if (typeof window === 'undefined') {
+	    undefined.adapter.sessionTool = undefined.adapter.sessionTool || {};
+	} else {
+	    window.adapter.sessionTool = window.adapter.sessionTool || {};
+	}
+
+	if (typeof window === 'undefined') {
+	    undefined.adapter.sessionTool.d3 = undefined.adapter.sessionTool.d3 || {};
+	} else {
+	    window.adapter.sessionTool.d3 = window.adapter.sessionTool.d3 || {};
+	}
+
+	(function () {
+
+	    Object.defineProperty(ScatterPlotTool, 'NS', {
+	        value: 'adapter.sessionTool.d3'
+	    });
+
+	    Object.defineProperty(ScatterPlotTool, 'CLASS_NAME', {
+	        value: 'ScatterPlotTool'
+	    });
+
+	    function ScatterPlotTool() {
+	        /**
+	         * @public
+	         * @property sessionable
+	         * @readOnly
+	         * @type Booloean
+	         */
+
+	        Object.defineProperty(this, 'sessionable', {
+	            value: true
+	        });
+
+	        /**
+	         * @public
+	         * @property ns
+	         * @readOnly
+	         * @type String
+	         */
+	        Object.defineProperty(this, 'ns', {
+	            value: 'adapter.sessionTool.d3'
+	        });
+
+	        /**
+	         * @public
+	         * @property data
+	         * @readOnly
+	         * @type String
+	         */
+	        Object.defineProperty(this, 'sessionData', {
+	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new adapter.sessionData.ScatterPlotData())
+	        });
+	    }
+
+	    // Prototypes
+	    var p = ScatterPlotTool.prototype;
+
+	    p.createUI = function (margin, size) {
+	        /**
+	         * @public
+	         * @property ui
+	         * @readOnly
+	         * @type ReactElement
+	         */
+	        if (!this.ui) {
+	            Object.defineProperty(this, 'ui', {
+	                value: _react2['default'].createElement(_ScatterPlot2['default'], {
+	                    sessionData: this.sessionData,
+	                    top: margin.top,
+	                    bottom: margin.bottom,
+	                    left: margin.left,
+	                    right: margin.right,
+	                    width: size.width,
+	                    height: size.height
+	                })
+	            });
+	        }
+	    };
+
+	    //TO-DO: Find a way for class part of Modules
+	    // Need to save them global data in window object , as we need to create the object at runtime, we need namesapce
+	    // where as in module provide by webpack we can't get the constructor name.
+	    adapter.sessionTool.d3.ScatterPlotTool = ScatterPlotTool;
+	})();
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	__webpack_require__(10);
+
+	var _react = __webpack_require__(8);
+
+	var _react2 = _interopRequireDefault(_react);
 
 	var ScatterPlot = (function (_React$Component) {
 	    _inherits(ScatterPlot, _React$Component);
 
-	    function ScatterPlot() {
+	    function ScatterPlot(props) {
 	        _classCallCheck(this, ScatterPlot);
 
-	        _get(Object.getPrototypeOf(ScatterPlot.prototype), 'constructor', this).call(this);
+	        _get(Object.getPrototypeOf(ScatterPlot.prototype), "constructor", this).call(this, props);
+	        this.sessionData = props.sessionData;
 	        this._setReactState = this._setReactState.bind(this);
 	    }
 
-	    _createClass(ScatterPlot, [{
-	        key: '_initializeDataLogic',
-	        value: function _initializeDataLogic() {}
+	    //tied with d3 creation
 
-	        //tied with d3 creation
-	    }, {
-	        key: 'componentDidMount',
+	    _createClass(ScatterPlot, [{
+	        key: "componentDidMount",
 	        value: function componentDidMount() {
 	            var config = {
-	                container: _react2['default'].findDOMNode(this),
+	                container: _react2["default"].findDOMNode(this),
 	                margin: {
 	                    top: this.props.top,
 	                    bottom: this.props.bottom,
@@ -452,65 +631,64 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    key: "name"
 	                }
 	            };
-	            adapter.sessionData.scatterPlotData.chart.create(config);
-	            adapter.sessionData.scatterPlotData.chart.renderChart(adapter.sessionData.GlobalData.getData());
 
-	            adapter.sessionData.scatterPlotData.xAxis.addGroupedCallback(this, this._setReactState);
-	            adapter.sessionData.scatterPlotData.yAxis.addGroupedCallback(this, this._setReactState);
+	            var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
+	            WeaveAPI.globalHashMap.getObject('dataSource').addGroupedCallback(this, this._setReactState);
+
+	            this.sessionData.chart.create(config);
+	            this.sessionData.chart.renderChart(data);
+	            this.sessionData.xAxis.addGroupedCallback(this, this._setReactState);
+	            this.sessionData.yAxis.addGroupedCallback(this, this._setReactState);
 	        }
 
 	        //tied with d3 update
 	    }, {
-	        key: 'componentDidUpdate',
+	        key: "componentDidUpdate",
 	        value: function componentDidUpdate(prevProps, prevState) {
-	            console.log(adapter.sessionData.GlobalData.getData());
-	            adapter.sessionData.scatterPlotData.chart.renderChart(adapter.sessionData.GlobalData.getData());
-	            adapter.sessionData.scatterPlotData.chart.setXAttribute(adapter.sessionData.scatterPlotData.xAxis.value);
-	            adapter.sessionData.scatterPlotData.chart.setYAttribute(adapter.sessionData.scatterPlotData.yAxis.value);
+	            var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
+	            this.sessionData.chart.renderChart(data);
+	            this.sessionData.chart.setXAttribute(this.sessionData.xAxis.value);
+	            this.sessionData.chart.setYAttribute(this.sessionData.yAxis.value);
 	        }
 
 	        //tied with d3 destruction
 	    }, {
-	        key: 'componentWillUnmount',
+	        key: "componentWillUnmount",
 	        value: function componentWillUnmount() {
-	            adapter.sessionData.scatterPlotData.xAxis.removeCallback(this._setReactState);
-	            adapter.sessionData.scatterPlotData.yAxis.removeCallback(this._setReactState);
+	            this.sessionData.xAxis.removeCallback(this._setReactState);
+	            this.sessionData.yAxis.removeCallback(this._setReactState);
+	            WeaveAPI.globalHashMap.getObject('dataSource').removeCallback(this._setReactState);
 	        }
 	    }, {
-	        key: '_setReactState',
+	        key: "_setReactState",
 	        value: function _setReactState() {
 	            //TO-DO: check whether column Name is Part of the data Source
-	            console.log('Scatterplot Callback:', adapter.sessionData.scatterPlotData.getSessionStateValue());
+	            console.log('Scatterplot Callback:');
 
-	            this.setState(adapter.sessionData.scatterPlotData.getSessionStateValue());
+	            //this wil call render function which in turn calls componentDidUpdate
+	            this.setState(this.sessionData.getSessionStateValue());
 	        }
 	    }, {
-	        key: 'render',
+	        key: "render",
 	        value: function render() {
-	            return _react2['default'].createElement(
-	                'div',
-	                { className: 'Chart' },
-	                ' '
+	            return _react2["default"].createElement(
+	                "div",
+	                { className: "Chart" },
+	                " "
 	            );
 	        }
 	    }]);
 
 	    return ScatterPlot;
-	})(_react2['default'].Component);
+	})(_react2["default"].Component);
 
 	module.exports = ScatterPlot;
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports) {
 
-	module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
-
-/***/ },
-/* 9 */
-/***/ function(module, exports) {
-
-	module.exports = __WEBPACK_EXTERNAL_MODULE_9__;
+	module.exports = __WEBPACK_EXTERNAL_MODULE_10__;
 
 /***/ }
 /******/ ])

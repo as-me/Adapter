@@ -91,7 +91,7 @@ d3.csv("data/testCereal.csv", function (d, i) {
 }, function (error, rows) {
 
     renderPage();
-    adapter.sessionData.GlobalData.dataSource.setSessionState(rows);
+    WeaveAPI.globalHashMap.getObject("dataSource").setSessionState(rows);
     adapter.sessionData.scatterPlotData.xAxis.value = 'name';
     adapter.sessionData.scatterPlotData.yAxis.value = 'sodium';
     var weaveInteractionPeer = new adapter.peer.WeaveJSInterface();
