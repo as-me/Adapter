@@ -542,6 +542,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var p = ScatterPlotTool.prototype;
 
 	    p.createUI = function (margin, size) {
+	        console.log('createUI');
 	        /**
 	         * @public
 	         * @property ui
@@ -626,8 +627,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    height: this.props.height
 	                },
 	                columns: {
-	                    x: "name",
-	                    y: "protein",
+	                    x: this.sessionData.xAxis.value,
+	                    y: this.sessionData.yAxis.value,
 	                    key: "name"
 	                }
 	            };

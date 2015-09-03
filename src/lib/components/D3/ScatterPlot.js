@@ -25,8 +25,8 @@ class ScatterPlot extends React.Component {
                 height: this.props.height
             },
             columns: {
-                x: "name",
-                y: "protein",
+                x: this.sessionData.xAxis.value,
+                y: this.sessionData.yAxis.value,
                 key: "name"
             }
         }

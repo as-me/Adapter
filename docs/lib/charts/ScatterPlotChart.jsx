@@ -33,8 +33,8 @@ return{
                 width: this.state.width,
                 height: this.state.height
             });
-            tool.sessionData.xAxis.value = 'name';
-             tool.sessionData.yAxis.value = 'fat';
+            //tool.sessionData.xAxis.value = 'name';
+            // tool.sessionData.yAxis.value = 'fat';
 
        /* var tool =  WeaveAPI.SessionManager.registerLinkableChild(WeaveAPI.globalHashMap,new ScatterPlotTool(
             {

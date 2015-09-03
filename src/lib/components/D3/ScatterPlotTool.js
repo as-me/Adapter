@@ -163,6 +163,7 @@ if (typeof window === 'undefined') {
     var p = ScatterPlotTool.prototype;
 
     p.createUI = function (margin, size) {
+        console.log('createUI');
         /**
          * @public
          * @property ui
