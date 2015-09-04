@@ -284,7 +284,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     */
 	    function WeaveJSInterface() {
 	        adapter.Interface.call(this);
-	        this.activeHook = null;
+	        this.activeTool = null;
 
 	        Object.defineProperty(this, 'sessionable', {
 	            value: true
@@ -300,7 +300,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        });
 
 	        Object.defineProperty(this, 'hooks', {
-	            value: WeaveAPI.globalHashMap.requestObject('hooks', weavecore.LinkableHashmap, false)
+	            value: WeaveAPI.globalHashMap.requestObject('hooks', weavecore.LinkableHashMap, false)
 	        });
 
 	        this.selectionKeys.addImmediateCallback(this, renderSelection.bind(this));
@@ -311,17 +311,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    WeaveJSInterface.prototype.constructor = WeaveJSInterface;
 
 	    function renderSelection() {
-	        var keys = WeaveJSInterface.selectionKeys.getSessionState();
-	        this.hooks.forEach(function (hook, index) {
-	            if (hook != this.activehook) hook.doSelection(keys);else this.activehook = null;
-	        });
+	        var keys = this.selectionKeys.getSessionState();
+	        var hookedTools = this.hooks.getObjects();
+	        hookedTools.forEach((function (tool, index) {
+	            if (tool != this.activeTool) tool.hook.doSelection(keys);else this.activeTool = null;
+	        }).bind(this));
 	    }
 
 	    function renderProbe() {
-	        var key = WeaveJSInterface.probeKeys.getSessionState();
-	        this.hooks.forEach(function (hook, index) {
-	            if (hook != this.activehook) hook.doProbe(key);else this.activehook = null;
-	        });
+	        var key = this.probeKeys.getSessionState();
+	        var hookedTools = this.hooks.getObjects();
+	        hookedTools.forEach((function (tool, index) {
+	            if (tool != this.activeTool) tool.hook.doProbe(key);else this.activeTool = null;
+	        }).bind(this));
 	    }
 
 	    var p = WeaveJSInterface.prototype;
@@ -342,6 +344,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	     */
 	    p.doProbe = function (key) {
 	        this.probeKeys.setSessionState(key);
+	    };
+
+	    /**
+	     * @method probeCallback
+	     * @param {Object}
+	     */
+	    p.probeCallback = function (key, tool) {
+	        this.activeTool = tool;
+	        this.doProbe(key);
+	    };
+
+	    /**
+	     * @method selectionCallback
+	     * @param {Object}
+	     */
+	    p.selectionCallback = function (keys, tool) {
+	        this.activeTool = tool;
+	        this.doSelection(keys);
 	    };
 
 	    /**
@@ -453,16 +473,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        Object.defineProperty(this, 'yAxis', {
 	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString('yAxis'))
 	        });
-
-	        /**
-	         * @public
-	         * @property chart
-	         * @readOnly
-	         * @type d3Chart.Scatterplot
-	         */
-	        Object.defineProperty(this, 'chart', {
-	            value: new d3Chart.Scatterplot()
-	        });
 	    }
 
 	    // Prototypes
@@ -476,6 +486,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	    p.getSessionStateValue = function () {
 	        return {
 	            'xAxis': this.xAxis.value,
+	            'yAxis': this.yAxis.value
+	        };
+	    };
+
+	    /**
+	     * @method getXAxisValue
+	     * @return {Object}
+	     */
+	    p.getXAxisValue = function () {
+	        return {
+	            'xAxis': this.xAxis.value
+	        };
+	    };
+
+	    /**
+	     * @method getYAxisValue
+	     * @return {Object}
+	     */
+	    p.getYAxisValue = function () {
+	        return {
 	            'yAxis': this.yAxis.value
 	        };
 	    };
@@ -536,12 +566,33 @@ return /******/ (function(modules) { // webpackBootstrap
 	        Object.defineProperty(this, 'sessionData', {
 	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new adapter.sessionData.ScatterPlotData())
 	        });
+
+	        /**
+	         * @public
+	         * @property chart
+	         * @readOnly
+	         * @type d3Chart.Scatterplot
+	         */
+	        Object.defineProperty(this, 'chart', {
+	            value: new d3Chart.Scatterplot()
+	        });
+
+	        /**
+	         * @public
+	         * @property hook
+	         * @readOnly
+	         * @type d3Chart.Scatterplot
+	         */
+	        Object.defineProperty(this, 'hook', {
+	            value: new adapter.hook.D3Interface(this.chart)
+	        });
 	    }
 
-	    // Prototypes
+	    // Prototypes.
 	    var p = ScatterPlotTool.prototype;
 
-	    p.createUI = function (margin, size) {
+	    p.createUI = function (margin, size, interactions) {
+	        console.log('createUI');
 	        /**
 	         * @public
 	         * @property ui
@@ -557,7 +608,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    left: margin.left,
 	                    right: margin.right,
 	                    width: size.width,
-	                    height: size.height
+	                    height: size.height,
+	                    onProbe: interactions.onProbe,
+	                    onSelect: interactions.onSelect,
+	                    chart: this.chart
 	                })
 	            });
 	        }
@@ -605,6 +659,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        _get(Object.getPrototypeOf(ScatterPlot.prototype), "constructor", this).call(this, props);
 	        this.sessionData = props.sessionData;
+	        this.chart = props.chart;
 	        this._setReactState = this._setReactState.bind(this);
 	    }
 
@@ -626,17 +681,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    height: this.props.height
 	                },
 	                columns: {
-	                    x: "name",
-	                    y: "protein",
+	                    x: this.sessionData.xAxis.value,
+	                    y: this.sessionData.yAxis.value,
 	                    key: "name"
+	                },
+	                interactions: {
+	                    onProbe: this.props.onProbe,
+	                    onSelect: this.props.onSelect
 	                }
 	            };
 
 	            var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
 	            WeaveAPI.globalHashMap.getObject('dataSource').addGroupedCallback(this, this._setReactState);
-
-	            this.sessionData.chart.create(config);
-	            this.sessionData.chart.renderChart(data);
+	            console.log(this, this.props);
+	            this.chart.create(config);
+	            this.chart.renderChart(data);
 	            this.sessionData.xAxis.addGroupedCallback(this, this._setReactState);
 	            this.sessionData.yAxis.addGroupedCallback(this, this._setReactState);
 	        }
@@ -645,10 +704,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: "componentDidUpdate",
 	        value: function componentDidUpdate(prevProps, prevState) {
-	            var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
-	            this.sessionData.chart.renderChart(data);
-	            this.sessionData.chart.setXAttribute(this.sessionData.xAxis.value);
-	            this.sessionData.chart.setYAttribute(this.sessionData.yAxis.value);
+	            //var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
+	            //this.sessionData.chart.renderChart(data);
+	            this.chart.setXAttribute(this.sessionData.xAxis.value);
+	            this.chart.setYAttribute(this.sessionData.yAxis.value);
 	        }
 
 	        //tied with d3 destruction
@@ -662,9 +721,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: "_setReactState",
 	        value: function _setReactState() {
-	            //TO-DO: check whether column Name is Part of the data Source
-	            console.log('Scatterplot Callback:');
-
 	            //this wil call render function which in turn calls componentDidUpdate
 	            this.setState(this.sessionData.getSessionStateValue());
 	        }
