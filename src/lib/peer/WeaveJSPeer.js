@@ -23,7 +23,7 @@ if (typeof window === 'undefined') {
      */
     function WeaveJSInterface() {
         adapter.Interface.call(this);
-        this.activeHook = null;
+        this.activeTool = null;
 
         Object.defineProperty(this, 'sessionable', {
             value: true
@@ -39,7 +39,7 @@ if (typeof window === 'undefined') {
         });
 
         Object.defineProperty(this, 'hooks', {
-            value: WeaveAPI.globalHashMap.requestObject('hooks', weavecore.LinkableHashmap, false)
+            value: WeaveAPI.globalHashMap.requestObject('hooks', weavecore.LinkableHashMap, false)
         });
 
         this.selectionKeys.addImmediateCallback(this, renderSelection.bind(this));
@@ -52,23 +52,25 @@ if (typeof window === 'undefined') {
     WeaveJSInterface.prototype.constructor = WeaveJSInterface;
 
     function renderSelection() {
-        var keys = WeaveJSInterface.selectionKeys.getSessionState();
-        this.hooks.forEach(function (hook, index) {
-            if (hook != this.activehook)
-                hook.doSelection(keys);
+        var keys = this.selectionKeys.getSessionState();
+        var hookedTools = this.hooks.getObjects();
+        hookedTools.forEach(function (tool, index) {
+            if (tool != this.activeTool)
+                tool.hook.doSelection(keys);
             else
-                this.activehook = null;
-        });
+                this.activeTool = null;
+        }.bind(this));
     }
 
     function renderProbe() {
-        var key = WeaveJSInterface.probeKeys.getSessionState();
-        this.hooks.forEach(function (hook, index) {
-            if (hook != this.activehook)
-                hook.doProbe(key);
+        var key = this.probeKeys.getSessionState();
+        var hookedTools = this.hooks.getObjects();
+        hookedTools.forEach(function (tool, index) {
+            if (tool != this.activeTool)
+                tool.hook.doProbe(key);
             else
-                this.activehook = null;
-        });
+                this.activeTool = null;
+        }.bind(this));
     }
 
     var p = WeaveJSInterface.prototype;
@@ -89,6 +91,24 @@ if (typeof window === 'undefined') {
      */
     p.doProbe = function (key) {
         this.probeKeys.setSessionState(key);
+    }
+
+    /**
+     * @method probeCallback
+     * @param {Object}
+     */
+    p.probeCallback = function (key, tool) {
+        this.activeTool = tool;
+        this.doProbe(key);
+    }
+
+    /**
+     * @method selectionCallback
+     * @param {Object}
+     */
+    p.selectionCallback = function (keys, tool) {
+        this.activeTool = tool;
+        this.doSelection(keys);
     }
 
     /**

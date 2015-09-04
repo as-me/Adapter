@@ -7,6 +7,7 @@ class ScatterPlot extends React.Component {
     constructor(props) {
         super(props);
         this.sessionData = props.sessionData;
+        this.chart = props.chart;
         this._setReactState = this._setReactState.bind(this);
     }
 
@@ -28,14 +29,18 @@ class ScatterPlot extends React.Component {
                 x: this.sessionData.xAxis.value,
                 y: this.sessionData.yAxis.value,
                 key: "name"
+            },
+            interactions: {
+                onProbe: this.props.onProbe,
+                onSelect: this.props.onSelect
             }
         }
 
         var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
         WeaveAPI.globalHashMap.getObject('dataSource').addGroupedCallback(this, this._setReactState);
-
-        this.sessionData.chart.create(config);
-        this.sessionData.chart.renderChart(data);
+        console.log(this, this.props);
+        this.chart.create(config);
+        this.chart.renderChart(data);
         this.sessionData.xAxis.addGroupedCallback(this, this._setReactState);
         this.sessionData.yAxis.addGroupedCallback(this, this._setReactState);
 
@@ -44,10 +49,10 @@ class ScatterPlot extends React.Component {
 
     //tied with d3 update
     componentDidUpdate(prevProps, prevState) {
-        var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
-        this.sessionData.chart.renderChart(data);
-        this.sessionData.chart.setXAttribute(this.sessionData.xAxis.value);
-        this.sessionData.chart.setYAttribute(this.sessionData.yAxis.value);
+        //var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
+        //this.sessionData.chart.renderChart(data);
+        this.chart.setXAttribute(this.sessionData.xAxis.value);
+        this.chart.setYAttribute(this.sessionData.yAxis.value);
     }
 
     //tied with d3 destruction
@@ -57,10 +62,8 @@ class ScatterPlot extends React.Component {
         WeaveAPI.globalHashMap.getObject('dataSource').removeCallback(this._setReactState);
     }
 
-    _setReactState() {
-        //TO-DO: check whether column Name is Part of the data Source
-        console.log('Scatterplot Callback:');
 
+    _setReactState() {
         //this wil call render function which in turn calls componentDidUpdate
         this.setState(this.sessionData.getSessionStateValue());
     }

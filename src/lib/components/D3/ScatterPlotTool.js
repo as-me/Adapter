@@ -68,15 +68,7 @@ if (typeof window === 'undefined') {
             value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString('yAxis'))
         });
 
-        /**
-         * @public
-         * @property chart
-         * @readOnly
-         * @type d3Chart.Scatterplot
-         */
-        Object.defineProperty(this, 'chart', {
-            value: new d3Chart.Scatterplot()
-        });
+
     }
 
     // Prototypes
@@ -93,6 +85,27 @@ if (typeof window === 'undefined') {
             'yAxis': this.yAxis.value
         };
 
+    };
+
+
+    /**
+     * @method getXAxisValue
+     * @return {Object}
+     */
+    p.getXAxisValue = function () {
+        return {
+            'xAxis': this.xAxis.value
+        };
+    };
+
+    /**
+     * @method getYAxisValue
+     * @return {Object}
+     */
+    p.getYAxisValue = function () {
+        return {
+            'yAxis': this.yAxis.value
+        };
     };
 
 
@@ -156,13 +169,33 @@ if (typeof window === 'undefined') {
             value: WeaveAPI.SessionManager.registerLinkableChild(this, new adapter.sessionData.ScatterPlotData())
         });
 
+        /**
+         * @public
+         * @property chart
+         * @readOnly
+         * @type d3Chart.Scatterplot
+         */
+        Object.defineProperty(this, 'chart', {
+            value: new d3Chart.Scatterplot()
+        });
+
+        /**
+         * @public
+         * @property hook
+         * @readOnly
+         * @type d3Chart.Scatterplot
+         */
+        Object.defineProperty(this, 'hook', {
+            value: new adapter.hook.D3Interface(this.chart)
+        });
+
 
     }
 
-    // Prototypes
+    // Prototypes.
     var p = ScatterPlotTool.prototype;
 
-    p.createUI = function (margin, size) {
+    p.createUI = function (margin, size, interactions) {
         console.log('createUI');
         /**
          * @public
@@ -179,7 +212,10 @@ if (typeof window === 'undefined') {
                     left: margin.left,
                     right: margin.right,
                     width: size.width,
-                    height: size.height
+                    height: size.height,
+                    onProbe: interactions.onProbe,
+                    onSelect: interactions.onSelect,
+                    chart: this.chart
                 })
             });
         }

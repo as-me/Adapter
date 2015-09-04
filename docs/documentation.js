@@ -89,15 +89,12 @@ d3.csv("data/testCereal.csv", function (d, i) {
     d.index = i;
     return d;
 }, function (error, rows) {
+    adapter.weaveInteractionPeer = new adapter.peer.WeaveJSInterface();
     WeaveAPI.globalHashMap.getObject("dataSource").setSessionState(rows);
-    var tool = WeaveAPI.globalHashMap.requestObject('ScatterPlotTool', adapter.sessionTool.d3.ScatterPlotTool, false);
-    tool.sessionData.xAxis.value = 'name';
-    tool.sessionData.yAxis.value = 'sodium';
-
     renderPage();
 
 
-    //var weaveInteractionPeer = new adapter.peer.WeaveJSInterface();
+
     //weaveInteractionPeer.hooks.push(new adapter.hook.D3Interface(adapter.sessionData.scatterPlotData.chart));
 
 });
