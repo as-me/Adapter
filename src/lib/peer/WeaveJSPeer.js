@@ -23,7 +23,7 @@ if (typeof window === 'undefined') {
      */
     function WeaveJSInterface() {
         adapter.Interface.call(this);
-        this.activeTool = null;
+        this.activeHook = null;
 
         Object.defineProperty(this, 'sessionable', {
             value: true
@@ -55,7 +55,7 @@ if (typeof window === 'undefined') {
         var keys = this.selectionKeys.getSessionState();
         var hookedTools = this.hooks.getObjects();
         hookedTools.forEach(function (tool, index) {
-            if (tool != this.activeTool)
+            if (tool.sessionData.chart != this.activeHook)
                 tool.hook.doSelection(keys);
             else
                 this.activeTool = null;
@@ -66,7 +66,7 @@ if (typeof window === 'undefined') {
         var key = this.probeKeys.getSessionState();
         var hookedTools = this.hooks.getObjects();
         hookedTools.forEach(function (tool, index) {
-            if (tool != this.activeTool)
+            if (tool.sessionData.chart != this.activeHook)
                 tool.hook.doProbe(key);
             else
                 this.activeTool = null;

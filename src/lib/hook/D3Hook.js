@@ -9,7 +9,8 @@ if (typeof window === 'undefined') {
 (function () {
     function D3Interface(chart) {
         adapter.Interface.call(this);
-        this.chart = chart;
+        if (chart)
+            this.chart = chart;
         this.dataSource;
     }
 
@@ -17,6 +18,11 @@ if (typeof window === 'undefined') {
     D3Interface.prototype.constructor = D3Interface;
 
     var p = D3Interface.prototype;
+
+    p.setChart = function (chart) {
+        this.chart = chart;
+    }
+
     /*
      *This function renders on the visualization library , which are hooked to it
      * @param keys: We need to give the index value or Keys associated with that record [0,3,5]
@@ -24,14 +30,26 @@ if (typeof window === 'undefined') {
      * @param chart: we need to give chart instance generated in c3
      */
     p.doSelection = function (keys) {
+        if (!this.chart) {
+            console.log('Hook a d3 chart First');
+            return;
+        }
         this.chart.select(keys);
     }
 
     p.doProbe = function (key) {
+        if (!this.chart) {
+            console.log('Hook a d3 chart First');
+            return;
+        }
         this.chart.probe(key);
     }
 
     p.setData = function (sourceName, data) {
+        if (!this.chart) {
+            console.log('Hook a d3 chart First');
+            return;
+        }
         this.dataSource = sourceName;
         this.chart.renderChart(data);
     }

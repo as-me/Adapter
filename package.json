@@ -76,6 +76,7 @@
     "webpack-dev-server": "^1.10.1"
   },
   "dependencies": {
+    "c3": "^0.4.10",
     "d3": "^3.5.6",
     "d3chart": "git+https://github.com/sanjay1909/D3Chart.git",
     "react": "^0.13.3",

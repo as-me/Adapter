@@ -41,6 +41,7 @@ module.exports = {
     externals: {
         "react": "React",
         "d3": "d3",
+        "c3": "c3",
         "d3chart": "d3chart",
         "weavecore": ["weavecore", "WeaveAPI"]
     },

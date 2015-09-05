@@ -1,21 +1,33 @@
-import "d3chart";
+import c3 from 'c3';
 import React from 'react';
 
 
 
-class ScatterPlot extends React.Component {
+class D3ScatterPlot extends React.Component {
     constructor(props) {
         super(props);
         this.sessionData = props.sessionData;
-        this.chart = props.chart;
         this._setReactState = this._setReactState.bind(this);
     }
 
     //tied with d3 creation
     componentDidMount() {
+
+        var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
+        console.log(data);
+        var columns = [[], [], []];
+        columns[0].push(this.sessionData.xAxis.value);
+        columns[1].push(this.sessionData.yAxis.value);
+        columns[2].push('name');
+        var records = data.map(function (object) {
+            columns[0].push(object[this.sessionData.xAxis.value]);
+            columns[1].push(object[this.sessionData.yAxis.value]);
+            columns[2].push(object['index']);
+        }.bind(this))
+
         var config = {
-            container: React.findDOMNode(this),
-            margin: {
+            bindto: React.findDOMNode(this),
+            padding: {
                 top: this.props.top,
                 bottom: this.props.bottom,
                 left: this.props.left,
@@ -25,25 +37,34 @@ class ScatterPlot extends React.Component {
                 width: this.props.width,
                 height: this.props.height
             },
-            columns: {
+            data: {
                 x: this.sessionData.xAxis.value,
                 y: this.sessionData.yAxis.value,
-                key: "index"
+                columns: columns,
+                type: 'scatter',
+                selection: {
+                    enabled: true,
+
+                },
+                onselected: this.props.onSelect.callback
             },
-            interactions: {
-                onProbe: this.props.onProbe,
-                onSelect: this.props.onSelect
+            axis: {
+                x: {
+                    label: this.sessionData.xAxis.value
+
+                },
+                y: {
+                    label: this.sessionData.yAxis.value
+                }
             }
         }
 
-        var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
+
         WeaveAPI.globalHashMap.getObject('dataSource').addGroupedCallback(this, this._setReactState);
-        console.log(this, this.props);
-        this.sessionData.chart = new d3Chart.Scatterplot();
+
+        this.sessionData.chart = c3.generate(config);
         this.props.hook.setChart(this.sessionData.chart);
 
-        this.sessionData.chart.create(config);
-        this.sessionData.chart.renderChart(data);
         this.sessionData.xAxis.addGroupedCallback(this, this._setReactState);
         this.sessionData.yAxis.addGroupedCallback(this, this._setReactState);
 
@@ -52,8 +73,6 @@ class ScatterPlot extends React.Component {
 
     //tied with d3 update
     componentDidUpdate(prevProps, prevState) {
-        //var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
-        //this.sessionData.chart.renderChart(data);
         this.sessionData.chart.setXAttribute(this.sessionData.xAxis.value);
         this.sessionData.chart.setYAttribute(this.sessionData.yAxis.value);
     }
@@ -77,4 +96,4 @@ class ScatterPlot extends React.Component {
 
 }
 
-module.exports = ScatterPlot;
+module.exports = D3ScatterPlot;

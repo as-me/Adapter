@@ -9,13 +9,20 @@ if (typeof window === 'undefined') {
 (function () {
     function C3Interface(chart) {
         adapter.Interface.call(this);
-        this.chart = chart;
+        if (chart)
+            this.chart = chart;
     }
 
     C3Interface.prototype = new adapter.Interface();
     C3Interface.prototype.constructor = C3Interface;
 
     var p = C3Interface.prototype;
+
+
+    p.setChart = function (chart) {
+        this.chart = chart;
+    }
+
     /*
      *This function renders on the visualization library , which are hooked to it
      * @param keys: We need to give the index value or Keys associated with that record [0,3,5]
@@ -23,6 +30,10 @@ if (typeof window === 'undefined') {
      * @param chart: we need to give chart instance generated in c3
      */
     p.doSelection = function (keys) {
+        if (!this.chart) {
+            console.log('Hook a c3 chart First');
+            return;
+        }
 
         if (keys !== undefined) {
             if (keys.constructor !== Array) console.log("Keys has to be an array ");

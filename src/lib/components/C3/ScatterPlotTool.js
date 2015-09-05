@@ -16,16 +16,15 @@ if (typeof window === 'undefined') {
 }
 
 if (typeof window === 'undefined') {
-    this.adapter.sessionData.d3 = this.adapter.sessionData.d3 || {};
+    this.adapter.sessionData.c3 = this.adapter.sessionData.c3 || {};
 } else {
-    window.adapter.sessionData.d3 = window.adapter.sessionData.d3 || {};
+    window.adapter.sessionData.c3 = window.adapter.sessionData.c3 || {};
 }
-
 
 (function () {
 
     Object.defineProperty(ScatterPlotData, 'NS', {
-        value: 'adapter.sessionData.d3'
+        value: 'adapter.sessionData.c3'
     });
 
     Object.defineProperty(ScatterPlotData, 'CLASS_NAME', {
@@ -51,7 +50,7 @@ if (typeof window === 'undefined') {
          * @type String
          */
         Object.defineProperty(this, 'ns', {
-            value: 'adapter.sessionData.d3'
+            value: 'adapter.sessionData.c3'
         });
 
         /**
@@ -74,6 +73,7 @@ if (typeof window === 'undefined') {
             value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString('yAxis'))
         });
 
+        // since c3 creates charts with default config need to set at the time of creation.
         this.chart;
 
 
@@ -117,7 +117,7 @@ if (typeof window === 'undefined') {
     };
 
 
-    adapter.sessionData.d3.ScatterPlotData = ScatterPlotData;
+    adapter.sessionData.c3.ScatterPlotData = ScatterPlotData;
 
 }());
 
@@ -129,16 +129,16 @@ if (typeof window === 'undefined') {
 }
 
 if (typeof window === 'undefined') {
-    this.adapter.sessionTool.d3 = this.adapter.sessionTool.d3 || {};
+    this.adapter.sessionTool.c3 = this.adapter.sessionTool.c3 || {};
 } else {
-    window.adapter.sessionTool.d3 = window.adapter.sessionTool.d3 || {};
+    window.adapter.sessionTool.c3 = window.adapter.sessionTool.c3 || {};
 }
 
 (function () {
 
 
     Object.defineProperty(ScatterPlotTool, 'NS', {
-        value: 'adapter.sessionTool.d3'
+        value: 'adapter.sessionTool.c3'
     });
 
     Object.defineProperty(ScatterPlotTool, 'CLASS_NAME', {
@@ -174,7 +174,7 @@ if (typeof window === 'undefined') {
          * @type String
          */
         Object.defineProperty(this, 'sessionData', {
-            value: WeaveAPI.SessionManager.registerLinkableChild(this, new adapter.sessionData.d3.ScatterPlotData())
+            value: WeaveAPI.SessionManager.registerLinkableChild(this, new adapter.sessionData.c3.ScatterPlotData())
         });
 
         /**
@@ -184,7 +184,7 @@ if (typeof window === 'undefined') {
          * @type d3Chart.Scatterplot
          */
         /*Object.defineProperty(this, 'chart', {
-            value: new d3Chart.Scatterplot()
+            value: c3.generate(WeaveAPI.globalHashMap.getObject('dataSource').getSessionState())
         });*/
 
         /**
@@ -194,7 +194,7 @@ if (typeof window === 'undefined') {
          * @type d3Chart.Scatterplot
          */
         Object.defineProperty(this, 'hook', {
-            value: new adapter.hook.D3Interface()
+            value: new adapter.hook.C3Interface()
         });
 
 
@@ -233,5 +233,5 @@ if (typeof window === 'undefined') {
     //TO-DO: Find a way for class part of Modules
     // Need to save them global data in window object , as we need to create the object at runtime, we need namesapce
     // where as in module provide by webpack we can't get the constructor name.
-    adapter.sessionTool.d3.ScatterPlotTool = ScatterPlotTool;
+    adapter.sessionTool.c3.ScatterPlotTool = ScatterPlotTool;
 }());

@@ -9,6 +9,7 @@ var Adapter = require('src/');
 require('weavecore');
 
 var ScatterPlotTool = adapter.sessionTool.d3.ScatterPlotTool;
+var C3ScatterPlotTool = adapter.sessionTool.c3.ScatterPlotTool;
 
 var ScatterPlotChart = React.createClass({
     getInitialState(){
@@ -55,7 +56,7 @@ var ScatterPlotChart = React.createClass({
         tool.sessionData.xAxis.value = 'name';
         tool.sessionData.yAxis.value = 'fat';
 
-        var tool2 = adapter.weaveInteractionPeer.requestHook('ScatterPlotTool2',ScatterPlotTool,false);
+        var tool2 = adapter.weaveInteractionPeer.requestHook('ScatterPlotTool2',C3ScatterPlotTool,false);
         tool2.createUI({
                     top: this.state.top,
                     bottom: this.state.bottom,
@@ -71,25 +72,31 @@ var ScatterPlotChart = React.createClass({
                         showToolTip: true,
                         callback: function(d) {
                             adapter.weaveInteractionPeer.activeHook = this;
-                            adapter.weaveInteractionPeer.doProbe(d);
+                            adapter.weaveInteractionPeer.doProbe(d.index);
                         }
                     },
                     onSelect: {
                         callback: function (keys) {
                             adapter.weaveInteractionPeer.activeHook = this;
-                            adapter.weaveInteractionPeer.doSelection(keys);
+                            if (keys.constructor === Array)
+                               adapter.weaveInteractionPeer.doSelection(keys.map(function (key) {
+                                    return key.index;
+                                }), true);
+                            else
+                                adapter.weaveInteractionPeer.doSelection([keys.index], true);
                         }
                     }
                 }
         );
-        tool2.sessionData.xAxis.value = 'name';
+        tool2.sessionData.xAxis.value = 'sodium';
         tool2.sessionData.yAxis.value = 'protein';
 
 
 		return (
 			<div className = 'App' >
-            {tool.ui}
-            {tool2.ui}< /div >
+            <div>{tool.ui}</div>
+            <div>{tool2.ui}</div>
+            < /div >
 		);
 	}
 });

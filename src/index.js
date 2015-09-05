@@ -12,3 +12,6 @@ exports.components = {};
 
 exports.components.D3 = {}
 exports.components.D3.ScatterPlotTool = require("./lib/components/D3/ScatterPlotTool.js");
+
+exports.components.C3 = {}
+exports.components.C3.ScatterPlotTool = require("./lib/components/C3/ScatterPlotTool.js");
