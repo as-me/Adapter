@@ -77,6 +77,7 @@ var ScatterPlotChart = React.createClass({
                     },
                     onSelect: {
                         callback: function (keys) {
+                            keys = this.selected();
                             adapter.weaveInteractionPeer.activeHook = this;
                             if (keys.constructor === Array)
                                adapter.weaveInteractionPeer.doSelection(keys.map(function (key) {
@@ -94,9 +95,9 @@ var ScatterPlotChart = React.createClass({
 
 		return (
 			<div className = 'App' >
-            <h3>D3 Based Scatterplot (Interaction API - Probing and Selection, UI Action - MouseOver and Brushing )</h3>
+            <h4>D3 Scatterplot (Interaction API - Probing  Selection, UI Action - MouseOver and Brushing )</h4>
             <div>{tool.ui}</div>
-            <h3>C3 Based Scatterplot (Interaction API - Selection, UI Action - Tool Tip  and Mouse click)</h3>
+            <h4>C3 Scatterplot (Interaction API - Selection(key),Selection(keys), UI Action - MouseOver  and Drag-Selection)</h4>
             <div>{tool2.ui}</div>
             < /div >
 		);
