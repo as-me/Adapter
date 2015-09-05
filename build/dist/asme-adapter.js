@@ -1077,7 +1077,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var columns = [[], [], []];
 	            columns[0].push(this.sessionData.xAxis.value);
 	            columns[1].push(this.sessionData.yAxis.value);
-	            columns[2].push('name');
+	            columns[2].push('index');
 	            var records = data.map((function (object) {
 	                columns[0].push(object[this.sessionData.xAxis.value]);
 	                columns[1].push(object[this.sessionData.yAxis.value]);
@@ -1102,9 +1102,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    columns: columns,
 	                    type: 'scatter',
 	                    selection: {
-	                        enabled: true
+	                        enabled: true,
+	                        multiple: true,
+	                        draggable: true
 
 	                    },
+	                    hide: ['index'],
 	                    onselected: this.props.onSelect.callback
 	                },
 	                axis: {
@@ -1115,6 +1118,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    y: {
 	                        label: this.sessionData.yAxis.value
 	                    }
+	                },
+	                legend: {
+	                    show: false
 	                }
 	            };
 

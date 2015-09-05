@@ -14,8 +14,8 @@ var C3ScatterPlotTool = adapter.sessionTool.c3.ScatterPlotTool;
 var ScatterPlotChart = React.createClass({
     getInitialState(){
         return{
-                    width: 800,
-                    height: 400,
+                    width: 400,
+                    height: 300,
                     top: 5,
                     bottom: 100,
                     right: 20,
@@ -94,7 +94,9 @@ var ScatterPlotChart = React.createClass({
 
 		return (
 			<div className = 'App' >
+            <h3>D3 Based Scatterplot (Interaction API - Probing and Selection, UI Action - MouseOver and Brushing )</h3>
             <div>{tool.ui}</div>
+            <h3>C3 Based Scatterplot (Interaction API - Selection, UI Action - Tool Tip  and Mouse click)</h3>
             <div>{tool2.ui}</div>
             < /div >
 		);

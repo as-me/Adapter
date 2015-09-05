@@ -18,7 +18,7 @@ class D3ScatterPlot extends React.Component {
         var columns = [[], [], []];
         columns[0].push(this.sessionData.xAxis.value);
         columns[1].push(this.sessionData.yAxis.value);
-        columns[2].push('name');
+        columns[2].push('index');
         var records = data.map(function (object) {
             columns[0].push(object[this.sessionData.xAxis.value]);
             columns[1].push(object[this.sessionData.yAxis.value]);
@@ -44,8 +44,11 @@ class D3ScatterPlot extends React.Component {
                 type: 'scatter',
                 selection: {
                     enabled: true,
+                    multiple: true,
+                    draggable: true
 
                 },
+                hide: ['index'],
                 onselected: this.props.onSelect.callback
             },
             axis: {
@@ -56,6 +59,9 @@ class D3ScatterPlot extends React.Component {
                 y: {
                     label: this.sessionData.yAxis.value
                 }
+            },
+            legend: {
+                show: false
             }
         }
 
