@@ -93,9 +93,7 @@ d3.csv("data/testCereal.csv", function (d, i) {
     adapter.weaveInteractionPeer = new adapter.peer.WeaveJSInterface();
     WeaveAPI.globalHashMap.getObject("dataSource").setSessionState(rows);
     renderPage();
+    WeaveAPI.log = new weavecore.SessionStateLog(WeaveAPI.globalHashMap);
 
-
-
-    //weaveInteractionPeer.hooks.push(new adapter.hook.D3Interface(adapter.sessionData.scatterPlotData.chart));
 
 });

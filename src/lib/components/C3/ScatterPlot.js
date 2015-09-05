@@ -14,7 +14,6 @@ class D3ScatterPlot extends React.Component {
     componentDidMount() {
 
         var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
-        console.log(data);
         var columns = [[], [], []];
         columns[0].push(this.sessionData.xAxis.value);
         columns[1].push(this.sessionData.yAxis.value);

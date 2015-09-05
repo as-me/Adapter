@@ -69,7 +69,7 @@ if (typeof window === 'undefined') {
             if (tool.sessionData.chart != this.activeHook)
                 tool.hook.doProbe(key);
             else
-                this.activeTool = null;
+                this.activeHook = null;
         }.bind(this));
     }
 
@@ -93,23 +93,6 @@ if (typeof window === 'undefined') {
         this.probeKeys.setSessionState(key);
     }
 
-    /**
-     * @method probeCallback
-     * @param {Object}
-     */
-    p.probeCallback = function (key, tool) {
-        this.activeTool = tool;
-        this.doProbe(key);
-    }
-
-    /**
-     * @method selectionCallback
-     * @param {Object}
-     */
-    p.selectionCallback = function (keys, tool) {
-        this.activeTool = tool;
-        this.doSelection(keys);
-    }
 
     /**
      * This function request for hook which is either instance of IlinkableObject or has sessionable property value true

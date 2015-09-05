@@ -363,7 +363,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var key = this.probeKeys.getSessionState();
 	        var hookedTools = this.hooks.getObjects();
 	        hookedTools.forEach((function (tool, index) {
-	            if (tool.sessionData.chart != this.activeHook) tool.hook.doProbe(key);else this.activeTool = null;
+	            if (tool.sessionData.chart != this.activeHook) tool.hook.doProbe(key);else this.activeHook = null;
 	        }).bind(this));
 	    }
 
@@ -385,24 +385,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	     */
 	    p.doProbe = function (key) {
 	        this.probeKeys.setSessionState(key);
-	    };
-
-	    /**
-	     * @method probeCallback
-	     * @param {Object}
-	     */
-	    p.probeCallback = function (key, tool) {
-	        this.activeTool = tool;
-	        this.doProbe(key);
-	    };
-
-	    /**
-	     * @method selectionCallback
-	     * @param {Object}
-	     */
-	    p.selectionCallback = function (keys, tool) {
-	        this.activeTool = tool;
-	        this.doSelection(keys);
 	    };
 
 	    /**
@@ -1081,7 +1063,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function componentDidMount() {
 
 	            var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
-	            console.log(data);
 	            var columns = [[], [], []];
 	            columns[0].push(this.sessionData.xAxis.value);
 	            columns[1].push(this.sessionData.yAxis.value);
