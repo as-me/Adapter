@@ -198,6 +198,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.chart = chart;
 	    };
 
+	    p.doProbe = function (key) {
+	        if (!this.chart) {
+	            console.log('Hook a C3 chart First');
+	            return;
+	        }
+	        this.chart.select(this.chart.columns, [key], true);
+	    };
+
 	    /*
 	     *This function renders on the visualization library , which are hooked to it
 	     * @param keys: We need to give the index value or Keys associated with that record [0,3,5]
@@ -1108,7 +1116,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                    },
 	                    hide: ['index'],
-	                    onselected: this.props.onSelect.callback
+	                    onselected: this.props.onSelect.callback,
+	                    onmouseover: this.props.onProbe.callback
 	                },
 	                axis: {
 	                    x: {

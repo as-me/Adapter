@@ -23,6 +23,14 @@ if (typeof window === 'undefined') {
         this.chart = chart;
     }
 
+    p.doProbe = function (key) {
+        if (!this.chart) {
+            console.log('Hook a C3 chart First');
+            return;
+        }
+        this.chart.select(this.chart.columns, [key], true);
+    }
+
     /*
      *This function renders on the visualization library , which are hooked to it
      * @param keys: We need to give the index value or Keys associated with that record [0,3,5]

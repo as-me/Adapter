@@ -49,7 +49,8 @@ class D3ScatterPlot extends React.Component {
 
                 },
                 hide: ['index'],
-                onselected: this.props.onSelect.callback
+                onselected: this.props.onSelect.callback,
+                onmouseover: this.props.onProbe.callback
             },
             axis: {
                 x: {
