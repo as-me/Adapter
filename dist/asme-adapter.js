@@ -1098,6 +1098,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    },
 	                    hide: ['index'],
 	                    onselected: this.props.onSelect.callback,
+
 	                    onmouseover: this.props.onProbe.callback
 	                },
 	                axis: {
@@ -1109,9 +1110,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        label: this.sessionData.yAxis.value
 	                    }
 	                },
+	                onmouseout: function onmouseout() {
+	                    WeaveAPI.globalHashMap.getObject('selectionKeys').setSessionState([]);
+	                },
 	                legend: {
 	                    show: false
 	                }
+
 	            };
 
 	            WeaveAPI.globalHashMap.getObject('dataSource').addGroupedCallback(this, this._setReactState);
