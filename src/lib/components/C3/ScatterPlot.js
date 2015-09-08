@@ -60,9 +60,13 @@ class D3ScatterPlot extends React.Component {
                     label: this.sessionData.yAxis.value
                 }
             },
+            onmouseout: function () {
+                WeaveAPI.globalHashMap.getObject('selectionKeys').setSessionState([]);
+            },
             legend: {
                 show: false
             }
+
         }
 
 
