@@ -74,6 +74,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.components.C3 = {};
 	exports.components.C3.ScatterPlotTool = __webpack_require__(11);
 
+	adapter.charts = {
+	    d3: {
+	        scatterplot: adapter.sessionTool.d3.ScatterPlotTool
+	    },
+	    c3: {
+	        scatterplot: adapter.sessionTool.c3.ScatterPlotTool
+	    }
+	};
+
 /***/ },
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
