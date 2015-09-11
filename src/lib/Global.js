@@ -1,8 +1,5 @@
 require("weavecore");
 
-
-
-
 //namesapce
 if (typeof window === 'undefined') {
     this.adapter = this.adapter || {};
@@ -12,9 +9,9 @@ if (typeof window === 'undefined') {
 
 
 if (typeof window === 'undefined') {
-    this.adapter.sessionData = this.adapter.sessionData || {};
+    this.adapter.session = this.adapter.session || {};
 } else {
-    window.adapter.sessionData = window.adapter.sessionData || {};
+    window.adapter.session = window.adapter.session || {};
 }
 
 (function () {
@@ -53,6 +50,6 @@ if (typeof window === 'undefined') {
 
     };
 
-    adapter.sessionData.GlobalData = new GlobalData();
+    adapter.session.GlobalData = new GlobalData();
 
 }());

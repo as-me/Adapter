@@ -24,7 +24,6 @@ function compressString(string) {
     string = string.replace(/\s+/g, '');
     string = string.replace(/_+/g, '');
     string = string.toLowerCase();
-    // console.log(string);
     return string
 }
 
@@ -36,7 +35,6 @@ function renderPage() {
 
     var firstPage = (selectedPage.length === 0) ? pages[0] : selectedPage[0];
 
-    // console.log(selected, selectedPage, firstPage);
     class ExamplesPage extends React.Component {
         constructor(props) {
             super(props);

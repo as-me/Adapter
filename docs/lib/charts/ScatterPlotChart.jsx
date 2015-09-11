@@ -5,8 +5,8 @@ var MenuGroup = require('../menu-group');
 var MenuItem = require('../MenuItem');
 require('weavecore');
 
-var D3ScatterPlotTool = adapter.sessionTool.d3.ScatterPlotTool;
-var C3ScatterPlotTool = adapter.sessionTool.c3.ScatterPlotTool;
+var D3ScatterPlotTool = adapter.libs.d3.ScatterPlot;
+var C3ScatterPlotTool = adapter.libs.c3.ScatterPlot;
 
 
 

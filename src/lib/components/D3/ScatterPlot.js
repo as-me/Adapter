@@ -1,72 +1,131 @@
-import "d3chart";
 import React from 'react';
+import D3ScatterPlot from './ScatterPlotUI';
+import '../../session/ScatterPlot.js';
+import 'weavecore';
 
-
-
-class ScatterPlot extends React.Component {
-    constructor(props) {
-        super(props);
-        this.sessionData = props.sessionData;
-        this.chart = props.chart;
-        this._setReactState = this._setReactState.bind(this);
-    }
-
-    //tied with d3 creation
-    componentDidMount() {
-        var config = {
-            container: React.findDOMNode(this),
-            margin: this.props.padding ? this.props.padding : {},
-            size: this.props.size ? this.props.size : {},
-            columns: {
-                x: this.sessionData.xAxis.value,
-                y: this.sessionData.yAxis.value,
-                key: "index"
-            },
-            interactions: {
-                onProbe: this.props.onProbe,
-                onSelect: this.props.onSelect
-            }
-        }
-
-        var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
-        WeaveAPI.globalHashMap.getObject('dataSource').addGroupedCallback(this, this._setReactState);
-        console.log(this, this.props);
-        this.sessionData.chart = new d3Chart.Scatterplot();
-        this.props.hook.setChart(this.sessionData.chart);
-
-        this.sessionData.chart.create(config);
-        this.sessionData.chart.renderChart(data);
-        this.sessionData.xAxis.addGroupedCallback(this, this._setReactState);
-        this.sessionData.yAxis.addGroupedCallback(this, this._setReactState);
-
-
-    }
-
-    //tied with d3 update
-    componentDidUpdate(prevProps, prevState) {
-        //var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
-        //this.sessionData.chart.renderChart(data);
-        this.sessionData.chart.setXAttribute(this.sessionData.xAxis.value);
-        this.sessionData.chart.setYAttribute(this.sessionData.yAxis.value);
-    }
-
-    //tied with d3 destruction
-    componentWillUnmount() {
-        this.sessionData.xAxis.removeCallback(this._setReactState);
-        this.sessionData.yAxis.removeCallback(this._setReactState);
-        WeaveAPI.globalHashMap.getObject('dataSource').removeCallback(this._setReactState);
-    }
-
-
-    _setReactState() {
-        //this wil call render function which in turn calls componentDidUpdate
-        this.setState(this.sessionData.getSessionStateValue());
-    }
-
-    render() {
-        return <div className = 'Chart' > < /div>;
-    }
-
+//namesapce
+if (typeof window === 'undefined') {
+    this.adapter = this.adapter || {};
+} else {
+    window.adapter = window.adapter || {};
 }
 
-module.exports = ScatterPlot;
+if (typeof window === 'undefined') {
+    this.adapter.libs = this.adapter.libs || {};
+} else {
+    window.adapter.libs = window.adapter.libs || {};
+}
+
+if (typeof window === 'undefined') {
+    this.adapter.libs.d3 = this.adapter.libs.d3 || {};
+} else {
+    window.adapter.libs.d3 = window.adapter.libs.d3 || {};
+}
+
+
+
+(function () {
+
+
+    Object.defineProperty(ScatterPlot, 'NS', {
+        value: 'adapter.libs.d3'
+    });
+
+    Object.defineProperty(ScatterPlot, 'CLASS_NAME', {
+        value: 'ScatterPlot'
+    });
+
+    function ScatterPlot() {
+        /**
+         * @public
+         * @property sessionable
+         * @readOnly
+         * @type Booloean
+         */
+
+        Object.defineProperty(this, 'sessionable', {
+            value: true
+        });
+
+        /**
+         * @public
+         * @property ns
+         * @readOnly
+         * @type String
+         */
+        Object.defineProperty(this, 'ns', {
+            value: 'adapter.libs.d3'
+        });
+
+        /**
+         * @public
+         * @property data
+         * @readOnly
+         * @type String
+         */
+        Object.defineProperty(this, 'sessionData', {
+            value: WeaveAPI.SessionManager.registerLinkableChild(this, new adapter.session.ScatterPlot())
+        });
+
+        /**
+         * @public
+         * @property chart
+         * @readOnly
+         * @type d3Chart.Scatterplot
+         */
+        /*Object.defineProperty(this, 'chart', {
+            value: new d3Chart.Scatterplot()
+        });*/
+
+        /**
+         * @public
+         * @property hook
+         * @readOnly
+         * @type d3Chart.Scatterplot
+         */
+        Object.defineProperty(this, 'hook', {
+            value: new adapter.hook.D3Interface()
+        });
+
+
+    }
+
+    // Prototypes.
+    var p = ScatterPlot.prototype;
+
+    p.createUI = function (padding, size, interactions) {
+        /**
+         * @public
+         * @property ui
+         * @readOnly
+         * @type ReactElement
+         */
+        if (!this.ui) {
+            Object.defineProperty(this, 'ui', {
+                value: React.createElement(D3ScatterPlot, {
+                    sessionData: this.sessionData,
+                    padding: {
+                        top: padding.top,
+                        bottom: padding.bottom,
+                        left: padding.left,
+                        right: padding.right
+                    },
+                    size: {
+                        width: size.width,
+                        height: size.height
+                    },
+
+                    onProbe: interactions.onProbe,
+                    onSelect: interactions.onSelect,
+                    hook: this.hook
+                })
+            });
+        }
+    }
+
+
+    //TO-DO: Find a way for class part of Modules
+    // Need to save them global data in window object , as we need to create the object at runtime, we need namesapce
+    // where as in module provide by webpack we can't get the constructor name.
+    adapter.libs.d3.ScatterPlot = ScatterPlot;
+}());
