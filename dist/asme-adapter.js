@@ -1098,7 +1098,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    },
 	                    hide: ['index'],
 	                    onselected: this.props.onSelect.callback,
-
 	                    onmouseover: this.props.onProbe.callback
 	                },
 	                axis: {
