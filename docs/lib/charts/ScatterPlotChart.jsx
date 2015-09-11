@@ -1,15 +1,14 @@
 'use strict';
-
-
-
-
-
 var React = require('react');
 var Adapter = require('src/');
+var MenuGroup = require('../menu-group');
+var MenuItem = require('../MenuItem');
 require('weavecore');
 
-var ScatterPlotTool = adapter.sessionTool.d3.ScatterPlotTool;
+var D3ScatterPlotTool = adapter.sessionTool.d3.ScatterPlotTool;
 var C3ScatterPlotTool = adapter.sessionTool.c3.ScatterPlotTool;
+
+
 
 var ScatterPlotChart = React.createClass({
     getInitialState(){
@@ -26,7 +25,7 @@ var ScatterPlotChart = React.createClass({
 
 
 	render() {
-        var tool = adapter.weaveInteractionPeer.requestHook('ScatterPlotTool',ScatterPlotTool,false);
+        var tool = adapter.weaveInteractionPeer.requestHook('ScatterPlotTool',D3ScatterPlotTool,false);
         tool.createUI({
                         top: this.state.top,
                         bottom: this.state.bottom,
@@ -95,6 +94,7 @@ var ScatterPlotChart = React.createClass({
 
 		return (
 			<div className = 'App' >
+
             <h4>D3 Scatterplot (Interaction API - Probing  Selection, UI Action - MouseOver and Brushing )</h4>
             <div>{tool.ui}</div>
             <h4>C3 Scatterplot (Interaction API - Selection(key),Selection(keys), UI Action - MouseOver  and Drag-Selection)</h4>
