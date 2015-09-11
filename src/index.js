@@ -15,3 +15,13 @@ exports.components.D3.ScatterPlotTool = require("./lib/components/D3/ScatterPlot
 
 exports.components.C3 = {}
 exports.components.C3.ScatterPlotTool = require("./lib/components/C3/ScatterPlotTool.js");
+
+
+adapter.charts = {
+    d3: {
+        scatterplot: adapter.sessionTool.d3.ScatterPlotTool
+    },
+    c3: {
+        scatterplot: adapter.sessionTool.c3.ScatterPlotTool
+    }
+};
