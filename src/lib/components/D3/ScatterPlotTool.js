@@ -203,7 +203,7 @@ if (typeof window === 'undefined') {
     // Prototypes.
     var p = ScatterPlotTool.prototype;
 
-    p.createUI = function (margin, size, interactions) {
+    p.createUI = function (padding, size, interactions) {
         console.log('createUI');
         /**
          * @public
@@ -215,12 +215,17 @@ if (typeof window === 'undefined') {
             Object.defineProperty(this, 'ui', {
                 value: React.createElement(ScatterPlot, {
                     sessionData: this.sessionData,
-                    top: margin.top,
-                    bottom: margin.bottom,
-                    left: margin.left,
-                    right: margin.right,
-                    width: size.width,
-                    height: size.height,
+                    padding: {
+                        top: padding.top,
+                        bottom: padding.bottom,
+                        left: padding.left,
+                        right: padding.right
+                    },
+                    size: {
+                        width: size.width,
+                        height: size.height
+                    },
+
                     onProbe: interactions.onProbe,
                     onSelect: interactions.onSelect,
                     hook: this.hook

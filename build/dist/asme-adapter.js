@@ -622,7 +622,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // Prototypes.
 	    var p = ScatterPlotTool.prototype;
 
-	    p.createUI = function (margin, size, interactions) {
+	    p.createUI = function (padding, size, interactions) {
 	        console.log('createUI');
 	        /**
 	         * @public
@@ -634,12 +634,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	            Object.defineProperty(this, 'ui', {
 	                value: _react2['default'].createElement(_ScatterPlot2['default'], {
 	                    sessionData: this.sessionData,
-	                    top: margin.top,
-	                    bottom: margin.bottom,
-	                    left: margin.left,
-	                    right: margin.right,
-	                    width: size.width,
-	                    height: size.height,
+	                    padding: {
+	                        top: padding.top,
+	                        bottom: padding.bottom,
+	                        left: padding.left,
+	                        right: padding.right
+	                    },
+	                    size: {
+	                        width: size.width,
+	                        height: size.height
+	                    },
+
 	                    onProbe: interactions.onProbe,
 	                    onSelect: interactions.onSelect,
 	                    hook: this.hook
@@ -701,16 +706,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function componentDidMount() {
 	            var config = {
 	                container: _react2["default"].findDOMNode(this),
-	                margin: {
-	                    top: this.props.top,
-	                    bottom: this.props.bottom,
-	                    left: this.props.left,
-	                    right: this.props.right
-	                },
-	                size: {
-	                    width: this.props.width,
-	                    height: this.props.height
-	                },
+	                margin: this.props.padding ? this.props.padding : {},
+	                size: this.props.size ? this.props.size : {},
 	                columns: {
 	                    x: this.sessionData.xAxis.value,
 	                    y: this.sessionData.yAxis.value,
@@ -989,7 +986,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // Prototypes.
 	    var p = ScatterPlotTool.prototype;
 
-	    p.createUI = function (margin, size, interactions) {
+	    p.createUI = function (padding, size, interactions) {
 	        console.log('createUI');
 	        /**
 	         * @public
@@ -1001,11 +998,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	            Object.defineProperty(this, 'ui', {
 	                value: _react2['default'].createElement(_ScatterPlot2['default'], {
 	                    sessionData: this.sessionData,
-	                    top: margin.top,
-	                    bottom: margin.bottom,
-	                    left: margin.left,
-	                    right: margin.right,
-	                    width: size.width,
+	                    padding: {
+	                        top: padding.top,
+	                        bottom: padding.bottom,
+	                        left: padding.left,
+	                        right: padding.right
+	                    },
+	                    size: {
+	                        width: size.width,
+	                        height: size.height
+	                    },
 	                    height: size.height,
 	                    onProbe: interactions.onProbe,
 	                    onSelect: interactions.onSelect,
@@ -1075,16 +1077,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            var config = {
 	                bindto: _react2['default'].findDOMNode(this),
-	                padding: {
-	                    top: this.props.top,
-	                    bottom: this.props.bottom,
-	                    left: this.props.left,
-	                    right: this.props.right
-	                },
-	                size: {
-	                    width: this.props.width,
-	                    height: this.props.height
-	                },
+	                padding: this.props.padding ? this.props.padding : {},
+	                size: this.props.size ? this.props.size : {},
 	                data: {
 	                    x: this.sessionData.xAxis.value,
 	                    y: this.sessionData.yAxis.value,

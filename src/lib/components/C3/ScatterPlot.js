@@ -26,16 +26,8 @@ class D3ScatterPlot extends React.Component {
 
         var config = {
             bindto: React.findDOMNode(this),
-            padding: {
-                top: this.props.top,
-                bottom: this.props.bottom,
-                left: this.props.left,
-                right: this.props.right
-            },
-            size: {
-                width: this.props.width,
-                height: this.props.height
-            },
+            padding: this.props.padding ? this.props.padding : {},
+            size: this.props.size ? this.props.size : {},
             data: {
                 x: this.sessionData.xAxis.value,
                 y: this.sessionData.yAxis.value,

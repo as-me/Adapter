@@ -13,8 +13,6 @@ var C3ScatterPlotTool = adapter.sessionTool.c3.ScatterPlotTool;
 var ScatterPlotChart = React.createClass({
     getInitialState(){
         return{
-                    width: 400,
-                    height: 300,
                     top: 5,
                     bottom: 100,
                     right: 20,
@@ -33,8 +31,7 @@ var ScatterPlotChart = React.createClass({
                         left: this.state.left
                     },
                     {
-                        width: this.state.width,
-                        height: this.state.height
+
                     },
                     {
                         onProbe: {
@@ -63,8 +60,7 @@ var ScatterPlotChart = React.createClass({
                     left: this.state.left
                 },
                 {
-                    width: this.state.width,
-                    height: this.state.height
+
                 },
                 {
                     onProbe: {

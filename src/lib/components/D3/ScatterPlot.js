@@ -15,16 +15,8 @@ class ScatterPlot extends React.Component {
     componentDidMount() {
         var config = {
             container: React.findDOMNode(this),
-            margin: {
-                top: this.props.top,
-                bottom: this.props.bottom,
-                left: this.props.left,
-                right: this.props.right
-            },
-            size: {
-                width: this.props.width,
-                height: this.props.height
-            },
+            margin: this.props.padding ? this.props.padding : {},
+            size: this.props.size ? this.props.size : {},
             columns: {
                 x: this.sessionData.xAxis.value,
                 y: this.sessionData.yAxis.value,
