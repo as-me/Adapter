@@ -487,6 +487,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        /**
 	         * @public
+	         * @property library
+	         * @readOnly
+	         * @type String
+	         */
+	        Object.defineProperty(this, 'library', {
+	            value: 'd3'
+	        });
+
+	        /**
+	         * @public
 	         * @property data
 	         * @readOnly
 	         * @type String
@@ -857,6 +867,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	         */
 	        Object.defineProperty(this, 'ns', {
 	            value: 'adapter.libs.c3'
+	        });
+
+	        /**
+	         * @public
+	         * @property library
+	         * @readOnly
+	         * @type String
+	         */
+	        Object.defineProperty(this, 'library', {
+	            value: 'c3'
 	        });
 
 	        /**
