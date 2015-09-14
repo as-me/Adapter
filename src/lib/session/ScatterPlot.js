@@ -36,15 +36,7 @@ if (typeof window === 'undefined') {
             value: true
         });
 
-        /**
-         * @public
-         * @property ns
-         * @readOnly
-         * @type String
-         */
-        Object.defineProperty(this, 'ns', {
-            value: 'adapter.session'
-        });
+
 
         /**
          * @public
