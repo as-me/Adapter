@@ -738,7 +738,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	         * @type weavecore.LinkableString
 	         */
 	        Object.defineProperty(this, 'yAxis', {
-	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString('yAxis'))
+	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString())
 	        });
 
 	        // since c3 creates charts with default config need to set at the time of creation.
