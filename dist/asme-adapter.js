@@ -344,6 +344,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            value: WeaveAPI.globalHashMap.requestObject('hooks', weavecore.LinkableHashMap, false)
 	        });
 
+	        this.selectionKeys.setSessionState([]);
+	        this.probeKeys.setSessionState(null);
+
 	        this.selectionKeys.addImmediateCallback(this, renderSelection.bind(this));
 	        this.probeKeys.addImmediateCallback(this, renderProbe.bind(this));
 	    }
@@ -375,6 +378,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @param {Array} keys We need to give the index value or Keys associated with that record [0,3,5].
 	     */
 	    p.doSelection = function (keys) {
+	        keys = keys.length > 0 ? keys : [];
 	        this.selectionKeys.setSessionState(keys);
 	    };
 
@@ -384,6 +388,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @param {Object} key We need to give the index value or Key associated with that record.
 	     */
 	    p.doProbe = function (key) {
+	        key = key !== undefined ? key : null;
 	        this.probeKeys.setSessionState(key);
 	    };
 
@@ -477,12 +482,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        /**
 	         * @public
-	         * @property ns
+	         * @property library
 	         * @readOnly
 	         * @type String
 	         */
-	        Object.defineProperty(this, 'ns', {
-	            value: 'adapter.libs.d3'
+	        Object.defineProperty(this, 'library', {
+	            value: 'd3'
 	        });
 
 	        /**
@@ -718,16 +723,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        /**
 	         * @public
-	         * @property ns
-	         * @readOnly
-	         * @type String
-	         */
-	        Object.defineProperty(this, 'ns', {
-	            value: 'adapter.session'
-	        });
-
-	        /**
-	         * @public
 	         * @property xAxis
 	         * @readOnly
 	         * @type weavecore.LinkableString
@@ -743,7 +738,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	         * @type weavecore.LinkableString
 	         */
 	        Object.defineProperty(this, 'yAxis', {
-	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString('yAxis'))
+	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString())
 	        });
 
 	        // since c3 creates charts with default config need to set at the time of creation.
@@ -763,6 +758,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	            'xAxis': this.xAxis.value,
 	            'yAxis': this.yAxis.value
 	        };
+	    };
+
+	    // public methods:
+	    /**
+	     * @method getSessionStateValue
+	     * @return {Object}
+	     */
+	    p.getColumnProperties = function () {
+	        return ['xAxis', 'yAxis'];
 	    };
 
 	    /**
@@ -857,6 +861,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	         */
 	        Object.defineProperty(this, 'ns', {
 	            value: 'adapter.libs.c3'
+	        });
+
+	        /**
+	         * @public
+	         * @property library
+	         * @readOnly
+	         * @type String
+	         */
+	        Object.defineProperty(this, 'library', {
+	            value: 'c3'
 	        });
 
 	        /**
@@ -1023,8 +1037,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.sessionData.chart = _c32['default'].generate(config);
 	            this.props.hook.setChart(this.sessionData.chart);
 
-	            this.sessionData.xAxis.addGroupedCallback(this, this._setReactState);
-	            this.sessionData.yAxis.addGroupedCallback(this, this._setReactState);
+	            this.sessionData.xAxis.addImmediateCallback(this, this._setReactState);
+	            this.sessionData.yAxis.addImmediateCallback(this, this._setReactState);
 	        }
 
 	        //tied with d3 update
