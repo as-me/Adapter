@@ -1,8 +1,6 @@
 'use strict';
 var React = require('react');
 var Adapter = require('src/');
-var MenuGroup = require('../menu-group');
-var MenuItem = require('../MenuItem');
 require('weavecore');
 
 var D3ScatterPlotTool = adapter.libs.d3.ScatterPlot;
@@ -49,8 +47,9 @@ var ScatterPlotChart = React.createClass({
                         }
                     }
         );
-        tool.sessionData.xAxis.value = 'name';
-        tool.sessionData.yAxis.value = 'fat';
+        tool.sessionData.dataSourceName.value = 'cereal';
+        tool.sessionData.xAxis.value = 'fat';
+        tool.sessionData.yAxis.value = 'index';
 
         var tool2 = adapter.weaveInteractionPeer.requestHook('ScatterPlotTool2',C3ScatterPlotTool,false);
         tool2.createUI({
@@ -67,25 +66,50 @@ var ScatterPlotChart = React.createClass({
                         showToolTip: true,
                         callback: function(d) {
                             adapter.weaveInteractionPeer.activeHook = this;
-                            adapter.weaveInteractionPeer.doProbe(d.index);
+                            adapter.weaveInteractionPeer.doProbe(d);
                         }
                     },
                     onSelect: {
                         callback: function (keys) {
-                            keys = this.selected();
                             adapter.weaveInteractionPeer.activeHook = this;
-                            if (keys.constructor === Array)
-                               adapter.weaveInteractionPeer.doSelection(keys.map(function (key) {
-                                    return key.index;
-                                }), true);
-                            else
-                                adapter.weaveInteractionPeer.doSelection([keys.index], true);
+                            adapter.weaveInteractionPeer.doSelection(keys);
                         }
                     }
                 }
         );
-        tool2.sessionData.xAxis.value = 'sodium';
-        tool2.sessionData.yAxis.value = 'protein';
+        tool2.sessionData.dataSourceName.value = 'cereal';
+        tool2.sessionData.xAxis.value = 'fat';
+        tool2.sessionData.yAxis.value = 'index';
+
+        var tool3 = adapter.weaveInteractionPeer.requestHook('ScatterPlotTool3',C3ScatterPlotTool,false);
+        tool3.createUI({
+                    top: this.state.top,
+                    bottom: this.state.bottom,
+                    right: this.state.right,
+                    left: this.state.left
+                },
+                {
+
+                },
+                {
+                    onProbe: {
+                        showToolTip: true,
+                        callback: function(d) {
+                            adapter.weaveInteractionPeer.activeHook = this;
+                            adapter.weaveInteractionPeer.doProbe(d);
+                        }
+                    },
+                    onSelect: {
+                        callback: function (keys) {
+                            adapter.weaveInteractionPeer.activeHook = this;
+                            adapter.weaveInteractionPeer.doSelection(keys);
+                        }
+                    }
+                }
+        );
+        tool3.sessionData.dataSourceName.value = 'cereal';
+        tool3.sessionData.xAxis.value = 'index';
+        tool3.sessionData.yAxis.value = 'fat';
 
 
 		return (
@@ -101,3 +125,6 @@ var ScatterPlotChart = React.createClass({
 });
 
 module.exports = ScatterPlotChart;
+
+
+

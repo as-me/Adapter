@@ -45,7 +45,7 @@ if (typeof window === 'undefined') {
          * @type weavecore.LinkableString
          */
         Object.defineProperty(this, 'xAxis', {
-            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString())
+            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString(''))
         });
 
         /**
@@ -55,13 +55,28 @@ if (typeof window === 'undefined') {
          * @type weavecore.LinkableString
          */
         Object.defineProperty(this, 'yAxis', {
-            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString())
+            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString(''))
         });
 
-        // since c3 creates charts with default config need to set at the time of creation.
-        this.chart;
+        /**
+         * @public
+         * @property keyColumn
+         * @readOnly
+         * @type weavecore.LinkableString
+         */
+        Object.defineProperty(this, 'keyColumn', {
+            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString(''))
+        });
 
-
+        /**
+         * @public
+         * @property dataSourceName
+         * @readOnly
+         * @type weavecore.LinkableString
+         */
+        Object.defineProperty(this, 'dataSourceName', {
+            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString(''))
+        });
     }
 
     // Prototypes
@@ -90,12 +105,13 @@ if (typeof window === 'undefined') {
 
     };
 
+    // getter function for react State Objects
 
     /**
      * @method getXAxisValue
      * @return {Object}
      */
-    p.getXAxisValue = function () {
+    p.getXAxisState = function () {
         return {
             'xAxis': this.xAxis.value
         };
@@ -105,9 +121,19 @@ if (typeof window === 'undefined') {
      * @method getYAxisValue
      * @return {Object}
      */
-    p.getYAxisValue = function () {
+    p.getYAxisState = function () {
         return {
             'yAxis': this.yAxis.value
+        };
+    };
+
+    /**
+     * @method getYAxisValue
+     * @return {Object}
+     */
+    p.getDataSourceState = function () {
+        return {
+            'dataSourceName': this.dataSourceName.value
         };
     };
 

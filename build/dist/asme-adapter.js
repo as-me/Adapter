@@ -7,7 +7,7 @@
 		exports["AsmeAdapter"] = factory(require(undefined), require("React"), require("d3chart"), require("c3"));
 	else
 		root["AsmeAdapter"] = factory(root[undefined], root["React"], root["d3chart"], root["c3"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_8__, __WEBPACK_EXTERNAL_MODULE_10__, __WEBPACK_EXTERNAL_MODULE_14__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_5__, __WEBPACK_EXTERNAL_MODULE_7__, __WEBPACK_EXTERNAL_MODULE_9__, __WEBPACK_EXTERNAL_MODULE_13__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -56,88 +56,25 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 
-	__webpack_require__(1);
-	exports.AdapterInterface = __webpack_require__(3);
+	exports.AdapterInterface = __webpack_require__(1);
 	exports.hook = {};
 
-	exports.hook.C3Hook = __webpack_require__(4);
-	exports.hook.D3Hook = __webpack_require__(5);
+	exports.hook.C3Hook = __webpack_require__(2);
+	exports.hook.D3Hook = __webpack_require__(3);
 
 	exports.peer = {};
-	exports.peer.WeaveJSPeer = __webpack_require__(6);
+	exports.peer.WeaveJSPeer = __webpack_require__(4);
 
 	exports.components = {};
 
 	exports.components.D3 = {};
-	exports.components.D3.ScatterPlotTool = __webpack_require__(7);
+	exports.components.D3.ScatterPlotTool = __webpack_require__(6);
 
 	exports.components.C3 = {};
-	exports.components.C3.ScatterPlotTool = __webpack_require__(12);
+	exports.components.C3.ScatterPlotTool = __webpack_require__(11);
 
 /***/ },
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	__webpack_require__(2);
-
-	//namesapce
-	if (typeof window === 'undefined') {
-	    undefined.adapter = undefined.adapter || {};
-	} else {
-	    window.adapter = window.adapter || {};
-	}
-
-	if (typeof window === 'undefined') {
-	    undefined.adapter.session = undefined.adapter.session || {};
-	} else {
-	    window.adapter.session = window.adapter.session || {};
-	}
-
-	(function () {
-	    function GlobalData() {
-
-	        /**
-	         * @public
-	         * @property xAxis
-	         * @readOnly
-	         * @type weavecore.LinkableString
-	         */
-	        Object.defineProperty(this, 'dataSource', {
-	            value: WeaveAPI.globalHashMap.requestObject("dataSource", weavecore.LinkableVariable)
-	        });
-	    }
-
-	    // Prototypes
-	    var p = GlobalData.prototype;
-
-	    p.getData = function () {
-	        return this.dataSource.getSessionState();
-	    };
-
-	    // public methods:
-	    /**
-	     * @method getSessionStateValue
-	     * @return {Object}
-	     */
-	    p.getSessionStateValue = function () {
-	        return {
-	            'dataSource': this.dataSource.getSessionState()
-	        };
-	    };
-
-	    adapter.session.GlobalData = new GlobalData();
-	})();
-
-/***/ },
-/* 2 */
-/***/ function(module, exports) {
-
-	module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
-
-/***/ },
-/* 3 */
 /***/ function(module, exports) {
 
 	//namespace
@@ -171,7 +108,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-/* 4 */
+/* 2 */
 /***/ function(module, exports) {
 
 	//namespace
@@ -186,7 +123,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	(function () {
 	    function C3Interface(chart) {
 	        adapter.Interface.call(this);
-	        if (chart) this.chart = chart;
+	        if (chart) this._chart = chart;
+
+	        Object.defineProperty(this, 'chart', {
+	            get: function get() {
+	                return this._chart;
+	            },
+	            set: function set(chart) {
+	                this._chart = chart;
+	            }
+	        });
 	    }
 
 	    C3Interface.prototype = new adapter.Interface();
@@ -194,16 +140,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    var p = C3Interface.prototype;
 
-	    p.setChart = function (chart) {
-	        this.chart = chart;
-	    };
-
 	    p.doProbe = function (key) {
 	        if (!this.chart) {
-	            console.log('Hook a C3 chart First');
+	            console.error('Hook a C3 chart First');
 	            return;
 	        }
-	        this.chart.select(this.chart.columns, [key], true);
+	        var yIndex = Number(this.chart.keyColumnToYIndex[key]);
+	        this.chart.select(['y'], [yIndex], true);
 	    };
 
 	    /*
@@ -214,7 +157,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     */
 	    p.doSelection = function (keys) {
 	        if (!this.chart) {
-	            console.log('Hook a c3 chart First');
+	            console.error('Hook a c3 chart First');
 	            return;
 	        }
 
@@ -223,10 +166,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        } else console.log("keys(Array)  is required");
 
 	        if (keys.length > 0) {
-	            var numericKeys = keys.map(function (key) {
-	                if (key.constructor === String) return key = Number(key);else return key;
-	            });
-	            this.chart.select(this.chart.columns, numericKeys, true);
+	            var yIndices = keys.map((function (key) {
+	                return Number(this.chart.keyColumnToYIndex[key]);
+	            }).bind(this));
+	            this.chart.select(['y'], yIndices, true);
 	        } else this.chart.unselect();
 	    };
 
@@ -234,7 +177,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-/* 5 */
+/* 3 */
 /***/ function(module, exports) {
 
 	//namespace
@@ -250,6 +193,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function D3Interface(chart) {
 	        adapter.Interface.call(this);
 	        if (chart) this.chart = chart;
+
+	        Object.defineProperty(this, 'chart', {
+	            get: function get() {
+	                return this._chart;
+	            },
+	            set: function set(chart) {
+	                this._chart = chart;
+	            }
+	        });
 	        this.dataSource;
 	    }
 
@@ -257,10 +209,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    D3Interface.prototype.constructor = D3Interface;
 
 	    var p = D3Interface.prototype;
-
-	    p.setChart = function (chart) {
-	        this.chart = chart;
-	    };
 
 	    /*
 	     *This function renders on the visualization library , which are hooked to it
@@ -297,7 +245,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-/* 6 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -306,7 +254,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	__webpack_require__(2);
+	__webpack_require__(5);
 
 	//namespace
 	if (typeof window === 'undefined') {
@@ -420,24 +368,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-/* 7 */
+/* 5 */
+/***/ function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_5__;
+
+/***/ },
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _react = __webpack_require__(8);
+	var _react = __webpack_require__(7);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _ScatterPlotUI = __webpack_require__(9);
+	var _ScatterPlotUI = __webpack_require__(8);
 
 	var _ScatterPlotUI2 = _interopRequireDefault(_ScatterPlotUI);
 
-	__webpack_require__(11);
+	__webpack_require__(10);
 
-	__webpack_require__(2);
+	__webpack_require__(5);
 
 	//namesapce
 	if (typeof window === 'undefined') {
@@ -502,16 +456,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        /**
 	         * @public
-	         * @property chart
-	         * @readOnly
-	         * @type d3Chart.Scatterplot
-	         */
-	        /*Object.defineProperty(this, 'chart', {
-	            value: new d3Chart.Scatterplot()
-	        });*/
-
-	        /**
-	         * @public
 	         * @property hook
 	         * @readOnly
 	         * @type d3Chart.Scatterplot
@@ -561,13 +505,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-/* 8 */
+/* 7 */
 /***/ function(module, exports) {
 
-	module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
+	module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
 
 /***/ },
-/* 9 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -582,9 +526,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	__webpack_require__(10);
+	__webpack_require__(9);
 
-	var _react = __webpack_require__(8);
+	var _react = __webpack_require__(7);
 
 	var _react2 = _interopRequireDefault(_react);
 
@@ -596,74 +540,133 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        _get(Object.getPrototypeOf(D3ScatterPlot.prototype), "constructor", this).call(this, props);
 	        this.sessionData = props.sessionData;
-	        this.chart = props.chart;
-	        this._setReactState = this._setReactState.bind(this);
+	        this.hook = props.hook;
+	        this.state = this.sessionData.getSessionStateValue();
+	        this.initialize = this.initialize.bind(this);
+	        this._setXAxis = this._setXAxis.bind(this);
+	        this._setYAxis = this._setYAxis.bind(this);
+	        this._setData = this._setData.bind(this);
+	        this.isXAxisChanged = false;
+	        this.isYAxisChanged = false;
+	        this.isDataChanged = false;
 	    }
 
-	    //tied with d3 creation
-
 	    _createClass(D3ScatterPlot, [{
+	        key: "initialize",
+	        value: function initialize() {
+	            var _data = WeaveAPI.globalHashMap.getObject(this.sessionData.dataSourceName.value);
+	            //since key wasnt mentioned here it creates index column and name index as key column name
+	            if (_data) {
+	                var config = {
+	                    container: _react2["default"].findDOMNode(this),
+	                    margin: this.props.padding ? this.props.padding : {},
+	                    size: this.props.size ? this.props.size : {},
+	                    columns: {
+	                        x: this.state.xAxis,
+	                        y: this.state.yAxis
+
+	                    },
+	                    interactions: {
+	                        onProbe: this.props.onProbe,
+	                        onSelect: this.props.onSelect
+	                    }
+	                };
+	                this.hook.chart = new d3Chart.Scatterplot();
+	                this.hook.chart.create(config);
+	            } else {
+	                console.warn("No data");
+	            }
+	        }
+
+	        //tied with d3 creation
+	    }, {
 	        key: "componentDidMount",
 	        value: function componentDidMount() {
-	            var config = {
-	                container: _react2["default"].findDOMNode(this),
-	                margin: this.props.padding ? this.props.padding : {},
-	                size: this.props.size ? this.props.size : {},
-	                columns: {
-	                    x: this.sessionData.xAxis.value,
-	                    y: this.sessionData.yAxis.value,
-	                    key: "index"
-	                },
-	                interactions: {
-	                    onProbe: this.props.onProbe,
-	                    onSelect: this.props.onSelect
-	                }
-	            };
+	            this.initialize();
 
-	            var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
-	            WeaveAPI.globalHashMap.getObject('dataSource').addGroupedCallback(this, this._setReactState);
-	            console.log(this, this.props);
-	            this.sessionData.chart = new d3Chart.Scatterplot();
-	            this.props.hook.setChart(this.sessionData.chart);
-
-	            this.sessionData.chart.create(config);
-	            this.sessionData.chart.renderChart(data);
-	            this.sessionData.xAxis.addGroupedCallback(this, this._setReactState);
-	            this.sessionData.yAxis.addGroupedCallback(this, this._setReactState);
+	            this.sessionData.dataSourceName.addImmediateCallback(this, this._setData, true);
+	            this.sessionData.xAxis.addImmediateCallback(this, this._setXAxis);
+	            this.sessionData.yAxis.addImmediateCallback(this, this._setYAxis);
+	        }
+	    }, {
+	        key: "_setXAxis",
+	        value: function _setXAxis() {
+	            this.isXAxisChanged = true;
+	            //this wil call render function which in turn calls componentDidUpdate
+	            this.setState(this.sessionData.getXAxisState());
+	        }
+	    }, {
+	        key: "_setYAxis",
+	        value: function _setYAxis() {
+	            this.isYAxisChanged = true;
+	            //this wil call render function which in turn calls componentDidUpdate
+	            this.setState(this.sessionData.getYAxisState());
+	        }
+	    }, {
+	        key: "_setData",
+	        value: function _setData() {
+	            this.isDataChanged = true;
+	            //this wil call render function which in turn calls componentDidUpdate
+	            if (!this.hook.chart) {
+	                this.initialize();
+	            }
+	            this.setState(this.sessionData.getDataSourceState());
 	        }
 
 	        //tied with d3 update
 	    }, {
 	        key: "componentDidUpdate",
 	        value: function componentDidUpdate(prevProps, prevState) {
-	            //var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
-	            //this.sessionData.chart.renderChart(data);
-	            this.sessionData.chart.setXAttribute(this.sessionData.xAxis.value);
-	            this.sessionData.chart.setYAttribute(this.sessionData.yAxis.value);
+	            if (this.hook.chart) {
+	                if (this.isXAxisChanged) {
+	                    this.hook.chart.setXAttribute(this.state.xAxis);
+	                    this.isXAxisChanged = false;
+	                }
+	                if (this.isYAxisChanged) {
+	                    this.hook.chart.setYAttribute(this.state.yAxis);
+	                    this.isYAxisChanged = false;
+	                }
+	                if (this.isDataChanged) {
+	                    var rows = WeaveAPI.globalHashMap.getObject(this.sessionData.dataSourceName.value).getSessionState();
+	                    this.hook.chart.renderChart(rows);
+	                    this.isDataChanged = false;
+	                }
+	            }
 	        }
 
 	        //tied with d3 destruction
 	    }, {
 	        key: "componentWillUnmount",
 	        value: function componentWillUnmount() {
-	            this.sessionData.xAxis.removeCallback(this._setReactState);
-	            this.sessionData.yAxis.removeCallback(this._setReactState);
-	            WeaveAPI.globalHashMap.getObject('dataSource').removeCallback(this._setReactState);
-	        }
-	    }, {
-	        key: "_setReactState",
-	        value: function _setReactState() {
-	            //this wil call render function which in turn calls componentDidUpdate
-	            this.setState(this.sessionData.getSessionStateValue());
+	            this.sessionData.xAxis.removeCallback(this._setXAxis);
+	            this.sessionData.yAxis.removeCallback(this._setYAxis);
+	            this.sessionData.dataSourceName.removeCallback(this._setData);
 	        }
 	    }, {
 	        key: "render",
 	        value: function render() {
-	            return _react2["default"].createElement(
-	                "div",
-	                { className: "Chart" },
-	                " "
-	            );
+	            var _data = WeaveAPI.globalHashMap.getObject(this.sessionData.dataSourceName.value);
+	            if (_data) {
+	                return _react2["default"].createElement(
+	                    "div",
+	                    { className: "Chart" },
+	                    " "
+	                );
+	            } else {
+	                return _react2["default"].createElement(
+	                    "div",
+	                    { className: "Chart" },
+	                    " ",
+	                    _react2["default"].createElement(
+	                        "h2",
+	                        null,
+	                        " ",
+	                        this.sessionData.dataSourceName,
+	                        "dont have data "
+	                    ),
+	                    " "
+	                );
+	            }
 	        }
 	    }]);
 
@@ -673,18 +676,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = D3ScatterPlot;
 
 /***/ },
-/* 10 */
+/* 9 */
 /***/ function(module, exports) {
 
-	module.exports = __WEBPACK_EXTERNAL_MODULE_10__;
+	module.exports = __WEBPACK_EXTERNAL_MODULE_9__;
 
 /***/ },
-/* 11 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	__webpack_require__(2);
+	__webpack_require__(5);
 
 	//namesapce
 	if (typeof window === 'undefined') {
@@ -728,7 +731,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	         * @type weavecore.LinkableString
 	         */
 	        Object.defineProperty(this, 'xAxis', {
-	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString())
+	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString(''))
 	        });
 
 	        /**
@@ -738,11 +741,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	         * @type weavecore.LinkableString
 	         */
 	        Object.defineProperty(this, 'yAxis', {
-	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString())
+	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString(''))
 	        });
 
-	        // since c3 creates charts with default config need to set at the time of creation.
-	        this.chart;
+	        /**
+	         * @public
+	         * @property keyColumn
+	         * @readOnly
+	         * @type weavecore.LinkableString
+	         */
+	        Object.defineProperty(this, 'keyColumn', {
+	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString(''))
+	        });
+
+	        /**
+	         * @public
+	         * @property dataSourceName
+	         * @readOnly
+	         * @type weavecore.LinkableString
+	         */
+	        Object.defineProperty(this, 'dataSourceName', {
+	            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString(''))
+	        });
 	    }
 
 	    // Prototypes
@@ -769,11 +789,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return ['xAxis', 'yAxis'];
 	    };
 
+	    // getter function for react State Objects
+
 	    /**
 	     * @method getXAxisValue
 	     * @return {Object}
 	     */
-	    p.getXAxisValue = function () {
+	    p.getXAxisState = function () {
 	        return {
 	            'xAxis': this.xAxis.value
 	        };
@@ -783,9 +805,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @method getYAxisValue
 	     * @return {Object}
 	     */
-	    p.getYAxisValue = function () {
+	    p.getYAxisState = function () {
 	        return {
 	            'yAxis': this.yAxis.value
+	        };
+	    };
+
+	    /**
+	     * @method getYAxisValue
+	     * @return {Object}
+	     */
+	    p.getDataSourceState = function () {
+	        return {
+	            'dataSourceName': this.dataSourceName.value
 	        };
 	    };
 
@@ -793,24 +825,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-/* 12 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _react = __webpack_require__(8);
+	var _react = __webpack_require__(7);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _ScatterPlotUI = __webpack_require__(13);
+	var _ScatterPlotUI = __webpack_require__(12);
 
 	var _ScatterPlotUI2 = _interopRequireDefault(_ScatterPlotUI);
 
-	__webpack_require__(11);
+	__webpack_require__(10);
 
-	__webpack_require__(2);
+	__webpack_require__(5);
 
 	//namesapce
 	if (typeof window === 'undefined') {
@@ -885,16 +917,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        /**
 	         * @public
-	         * @property chart
-	         * @readOnly
-	         * @type d3Chart.Scatterplot
-	         */
-	        /*Object.defineProperty(this, 'chart', {
-	            value: c3.generate(WeaveAPI.globalHashMap.getObject('dataSource').getSessionState())
-	        });*/
-
-	        /**
-	         * @public
 	         * @property hook
 	         * @readOnly
 	         * @type d3Chart.Scatterplot
@@ -944,7 +966,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-/* 13 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -959,11 +981,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var _c3 = __webpack_require__(14);
+	var _c3 = __webpack_require__(13);
 
 	var _c32 = _interopRequireDefault(_c3);
 
-	var _react = __webpack_require__(8);
+	var _react = __webpack_require__(7);
 
 	var _react2 = _interopRequireDefault(_react);
 
@@ -975,102 +997,206 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        _get(Object.getPrototypeOf(C3ScatterPlot.prototype), 'constructor', this).call(this, props);
 	        this.sessionData = props.sessionData;
-	        this._setReactState = this._setReactState.bind(this);
+	        this.hook = props.hook;
+	        this.state = this.sessionData.getSessionStateValue();
+	        this.initialize = this.initialize.bind(this);
+	        this._setXAxis = this._setXAxis.bind(this);
+	        this._setYAxis = this._setYAxis.bind(this);
+	        this._setData = this._setData.bind(this);
+	        this.isXAxisChanged = false;
+	        this.isYAxisChanged = false;
+	        this.isDataChanged = false;
+
+	        this.getColumns = this.getColumns.bind(this);
 	    }
 
-	    //tied with d3 creation
-
 	    _createClass(C3ScatterPlot, [{
+	        key: 'initialize',
+	        value: function initialize() {
+	            var chartUI = this;
+	            var _data = WeaveAPI.globalHashMap.getObject(this.sessionData.dataSourceName.value);
+	            if (_data) {
+	                //data.x data.y are ids - so make it x and y
+	                //unlike d3 c3 wont le tyou to load all data, it converts data specifed in columns to array fo json data style
+	                //so its important to set hide to keycolumnName which hleps in retrieving the the seleted data
+
+	                var config = {
+	                    bindto: _react2['default'].findDOMNode(this),
+	                    padding: this.props.padding ? this.props.padding : {},
+	                    size: this.props.size ? this.props.size : {},
+	                    data: {
+	                        x: 'x',
+	                        y: 'y',
+	                        columns: [],
+	                        type: 'scatter',
+	                        selection: {
+	                            enabled: true,
+	                            multiple: true,
+	                            draggable: true
+
+	                        },
+	                        onselected: function onselected() {
+	                            var selectedPoints = this.selected();
+	                            console.log('From c3 Selection selectedPoints Key', selectedPoints);
+	                            if (selectedPoints.constructor === Array) {
+	                                var keys = selectedPoints.map(function (point) {
+	                                    return chartUI.hook.chart.yIndexToKeyColumn[point['index']];
+	                                });
+	                                console.log('From c3 Selection Multiple Key', keys);
+	                                chartUI.props.onSelect.callback(keys);
+	                            } else {
+	                                console.log('From c3 Selection Single Key', chartUI.hook.chart.yIndexToKeyColumn[selectedPoints['index']]);
+	                                chartUI.props.onSelect.callback(chartUI.hook.chart.yIndexToKeyColumn[selectedPoints['index']]);
+	                            }
+	                        },
+	                        onmouseover: function onmouseover(point) {
+	                            console.log('From c3 Probe Key', chartUI.hook.chart.yIndexToKeyColumn[point['index']]);
+	                            chartUI.props.onProbe.callback(chartUI.hook.chart.yIndexToKeyColumn[point['index']]);
+	                        }
+	                    },
+	                    axis: {
+	                        x: {
+	                            label: this.state.xAxis,
+	                            tick: {
+	                                fit: false
+	                            }
+	                        },
+	                        y: {
+	                            label: this.state.yAxis
+	                        }
+	                    },
+	                    onmouseout: function onmouseout() {
+	                        WeaveAPI.globalHashMap.getObject('selectionKeys').setSessionState([]);
+	                    },
+	                    legend: {
+	                        show: false
+	                    }
+
+	                };
+	                this.hook.chart = _c32['default'].generate(config);
+	            } else {
+	                console.warn("No Data Found");
+	            }
+	        }
+
+	        //tied with d3 creation
+	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
+	            this.initialize();
+	            this.sessionData.dataSourceName.addImmediateCallback(this, this._setData, true);
+	            this.sessionData.xAxis.addImmediateCallback(this, this._setXAxis);
+	            this.sessionData.yAxis.addImmediateCallback(this, this._setYAxis);
+	        }
+	    }, {
+	        key: '_setXAxis',
+	        value: function _setXAxis() {
+	            this.isXAxisChanged = true;
+	            //this wil call render function which in turn calls componentDidUpdate
+	            this.setState(this.sessionData.getXAxisState());
+	        }
+	    }, {
+	        key: '_setYAxis',
+	        value: function _setYAxis() {
+	            this.isYAxisChanged = true;
+	            //this wil call render function which in turn calls componentDidUpdate
+	            this.setState(this.sessionData.getYAxisState());
+	        }
+	    }, {
+	        key: '_setData',
+	        value: function _setData() {
+	            this.isDataChanged = true;
+	            //this wil call render function which in turn calls componentDidUpdate
+	            if (!this.hook.chart) {
+	                this.initialize();
+	            }
+	            this.setState(this.sessionData.getDataSourceState());
+	        }
+	    }, {
+	        key: 'getColumns',
+	        value: function getColumns(xColumnName, yColumnName) {
+	            this.hook.chart.keyColumnToYIndex = {};
+	            this.hook.chart.yIndexToKeyColumn = {};
+	            var data = WeaveAPI.globalHashMap.getObject(this.sessionData.dataSourceName.value).getSessionState();
+	            var createIndex = false;
+	            if (!data[0].hasOwnProperty('index')) {
+	                console.warn("Its a good practise to set key column. failing to do so, will create a index as key column");
+	                createIndex = true;
+	            }
 
-	            var data = WeaveAPI.globalHashMap.getObject('dataSource').getSessionState();
-	            var columns = [[], [], []];
-	            columns[0].push(this.sessionData.xAxis.value);
-	            columns[1].push(this.sessionData.yAxis.value);
-	            columns[2].push('index');
-	            var records = data.map((function (object) {
-	                columns[0].push(object[this.sessionData.xAxis.value]);
-	                columns[1].push(object[this.sessionData.yAxis.value]);
-	                columns[2].push(object['index']);
+	            var columns = [[], []];
+	            var keyCol = this.sessionData.keyColumn.value = this.sessionData.keyColumn.value ? this.sessionData.keyColumn.value : 'index';
+	            console.log('Key Column:', keyCol);
+	            columns[0].push('x');
+	            columns[1].push('y');
+	            // in c3 index value is mapped with Y axis value
+	            // So map our keycolumn value with Y index which aids in exact selection and probing
+	            data.forEach((function (object, i) {
+	                columns[0].push(object[xColumnName]);
+	                columns[1].push(object[yColumnName]);
+	                if (createIndex) object['index'] = i;
+	                this.hook.chart.keyColumnToYIndex[object[keyCol]] = i;
+	                this.hook.chart.yIndexToKeyColumn[i] = object[keyCol];
 	            }).bind(this));
+	            console.log(columns);
 
-	            var config = {
-	                bindto: _react2['default'].findDOMNode(this),
-	                padding: this.props.padding ? this.props.padding : {},
-	                size: this.props.size ? this.props.size : {},
-	                data: {
-	                    x: this.sessionData.xAxis.value,
-	                    y: this.sessionData.yAxis.value,
-	                    columns: columns,
-	                    type: 'scatter',
-	                    selection: {
-	                        enabled: true,
-	                        multiple: true,
-	                        draggable: true
-
-	                    },
-	                    hide: ['index'],
-	                    onselected: this.props.onSelect.callback,
-	                    onmouseover: this.props.onProbe.callback
-	                },
-	                axis: {
-	                    x: {
-	                        label: this.sessionData.xAxis.value
-
-	                    },
-	                    y: {
-	                        label: this.sessionData.yAxis.value
-	                    }
-	                },
-	                onmouseout: function onmouseout() {
-	                    WeaveAPI.globalHashMap.getObject('selectionKeys').setSessionState([]);
-	                },
-	                legend: {
-	                    show: false
-	                }
-
-	            };
-
-	            WeaveAPI.globalHashMap.getObject('dataSource').addGroupedCallback(this, this._setReactState);
-
-	            this.sessionData.chart = _c32['default'].generate(config);
-	            this.props.hook.setChart(this.sessionData.chart);
-
-	            this.sessionData.xAxis.addImmediateCallback(this, this._setReactState);
-	            this.sessionData.yAxis.addImmediateCallback(this, this._setReactState);
+	            return columns;
 	        }
 
 	        //tied with d3 update
 	    }, {
 	        key: 'componentDidUpdate',
 	        value: function componentDidUpdate(prevProps, prevState) {
-	            this.sessionData.chart.setXAttribute(this.sessionData.xAxis.value);
-	            this.sessionData.chart.setYAttribute(this.sessionData.yAxis.value);
+	            if (this.hook.chart) {
+
+	                if (this.isXAxisChanged || this.isYAxisChanged || this.isDataChanged) {
+	                    this.hook.chart.axis.labels({
+	                        x: this.state.xAxis,
+	                        y: this.state.yAxis
+	                    });
+	                    var rows = WeaveAPI.globalHashMap.getObject(this.sessionData.dataSourceName.value).getSessionState();
+	                    var columns = this.getColumns(this.state.xAxis, this.state.yAxis);
+	                    this.hook.chart.load({
+	                        columns: columns
+	                    });
+	                    this.isXAxisChanged = false;
+	                    this.isYAxisChanged = false;
+	                    this.isDataChanged = false;
+	                }
+	            }
 	        }
 
 	        //tied with d3 destruction
 	    }, {
 	        key: 'componentWillUnmount',
 	        value: function componentWillUnmount() {
-	            this.sessionData.xAxis.removeCallback(this._setReactState);
-	            this.sessionData.yAxis.removeCallback(this._setReactState);
-	            WeaveAPI.globalHashMap.getObject('dataSource').removeCallback(this._setReactState);
-	        }
-	    }, {
-	        key: '_setReactState',
-	        value: function _setReactState() {
-	            //this wil call render function which in turn calls componentDidUpdate
-	            this.setState(this.sessionData.getSessionStateValue());
+	            this.sessionData.xAxis.removeCallback(this._setXAxis);
+	            this.sessionData.yAxis.removeCallback(this._setYAxis);
+	            this.sessionData.dataSourceName.removeCallback(this._setData);
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            return _react2['default'].createElement(
-	                'div',
-	                { className: 'Chart' },
-	                ' '
-	            );
+	            var _data = WeaveAPI.globalHashMap.getObject(this.sessionData.dataSourceName.value);
+	            if (_data) {
+	                return _react2['default'].createElement(
+	                    'div',
+	                    { className: 'Chart' },
+	                    ' '
+	                );
+	            } else {
+	                return _react2['default'].createElement(
+	                    'div',
+	                    { className: 'Chart' },
+	                    ' ',
+	                    _react2['default'].createElement(
+	                        'h2',
+	                        null,
+	                        ' No Data '
+	                    ),
+	                    ' '
+	                );
+	            }
 	        }
 	    }]);
 
@@ -1080,10 +1206,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = C3ScatterPlot;
 
 /***/ },
-/* 14 */
+/* 13 */
 /***/ function(module, exports) {
 
-	module.exports = __WEBPACK_EXTERNAL_MODULE_14__;
+	module.exports = __WEBPACK_EXTERNAL_MODULE_13__;
 
 /***/ }
 /******/ ])

@@ -1,4 +1,3 @@
-require("./lib/Global.js");
 exports.AdapterInterface = require("./lib/AdapterInterface.js");
 exports.hook = {};
 

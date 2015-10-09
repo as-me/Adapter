@@ -11,6 +11,15 @@ if (typeof window === 'undefined') {
         adapter.Interface.call(this);
         if (chart)
             this.chart = chart;
+
+        Object.defineProperty(this, 'chart', {
+            get: function () {
+                return this._chart;
+            },
+            set: function (chart) {
+                this._chart = chart;
+            }
+        })
         this.dataSource;
     }
 
@@ -19,9 +28,7 @@ if (typeof window === 'undefined') {
 
     var p = D3Interface.prototype;
 
-    p.setChart = function (chart) {
-        this.chart = chart;
-    }
+
 
     /*
      *This function renders on the visualization library , which are hooked to it
