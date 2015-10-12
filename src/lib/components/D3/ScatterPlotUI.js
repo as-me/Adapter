@@ -19,9 +19,9 @@ class D3ScatterPlot extends React.Component {
 
 
     initialize() {
-        var _data = WeaveAPI.globalHashMap.getObject(this.sessionData.dataSourceName.value);
+        var _dataSourceTarget = this.sessionData.dataSourceWatcher.target;
         //since key wasnt mentioned here it creates index column and name index as key column name
-        if (_data) {
+        if (_dataSourceTarget) {
             var config = {
                 container: React.findDOMNode(this),
                 margin: this.props.padding ? this.props.padding : {},
@@ -47,7 +47,7 @@ class D3ScatterPlot extends React.Component {
     componentDidMount() {
         this.initialize();
 
-        this.sessionData.dataSourceName.addImmediateCallback(this, this._setData, true);
+        WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).addImmediateCallback(this, this._setData, true);
         this.sessionData.xAxis.addImmediateCallback(this, this._setXAxis);
         this.sessionData.yAxis.addImmediateCallback(this, this._setYAxis);
     }
@@ -86,7 +86,7 @@ class D3ScatterPlot extends React.Component {
                 this.isYAxisChanged = false;
             }
             if (this.isDataChanged) {
-                var rows = WeaveAPI.globalHashMap.getObject(this.sessionData.dataSourceName.value).getSessionState();
+                var rows = this.sessionData.dataSourceWatcher.target.data.getSessionState();
                 this.hook.chart.renderChart(rows);
                 this.isDataChanged = false;
             }
@@ -98,12 +98,12 @@ class D3ScatterPlot extends React.Component {
     componentWillUnmount() {
         this.sessionData.xAxis.removeCallback(this._setXAxis);
         this.sessionData.yAxis.removeCallback(this._setYAxis);
-        this.sessionData.dataSourceName.removeCallback(this._setData);
+        this.sessionData.dataSourceWatcher.dispose();
     }
 
     render() {
-        var _data = WeaveAPI.globalHashMap.getObject(this.sessionData.dataSourceName.value);
-        if (_data) {
+        var _target = this.sessionData.dataSourceWatcher.target;
+        if (_target) {
             return <div className = 'Chart' > < /div>;
         } else {
             return <div className = 'Chart' > < h2 > {

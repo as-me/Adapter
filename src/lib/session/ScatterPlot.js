@@ -13,7 +13,6 @@ if (typeof window === 'undefined') {
     window.adapter.session = window.adapter.session || {};
 }
 
-
 (function () {
 
     Object.defineProperty(ScatterPlot, 'NS', {
@@ -74,8 +73,15 @@ if (typeof window === 'undefined') {
          * @readOnly
          * @type weavecore.LinkableString
          */
-        Object.defineProperty(this, 'dataSourceName', {
-            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableString(''))
+        Object.defineProperty(this, '_dataSourceWatcher', {
+            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableWatcher())
+        });
+
+
+        Object.defineProperty(this, 'dataSourceWatcher', {
+            get: function () {
+                return this._dataSourceWatcher;
+            }
         });
     }
 
@@ -133,7 +139,7 @@ if (typeof window === 'undefined') {
      */
     p.getDataSourceState = function () {
         return {
-            'dataSourceName': this.dataSourceName.value
+            'dataSource': this._dataSourceWatcher.target
         };
     };
 

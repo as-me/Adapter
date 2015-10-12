@@ -24,8 +24,8 @@ class C3ScatterPlot extends React.Component {
 
     initialize() {
         var chartUI = this;
-        var _data = WeaveAPI.globalHashMap.getObject(this.sessionData.dataSourceName.value);
-        if (_data) {
+        var _dataSourceTarget = this.sessionData.dataSourceWatcher.target;
+        if (_dataSourceTarget) {
             //data.x data.y are ids - so make it x and y
             //unlike d3 c3 wont le tyou to load all data, it converts data specifed in columns to array fo json data style
             //so its important to set hide to keycolumnName which hleps in retrieving the the seleted data
@@ -53,18 +53,18 @@ class C3ScatterPlot extends React.Component {
                                 return chartUI.hook.chart.yIndexToKeyColumn[point['index']];
                             })
                             console.log('From c3 Selection Multiple Key', keys);
-                            chartUI.props.onSelect.callback(keys);
+                            chartUI.props.onSelect.callback.call(this, keys);
 
                         } else {
                             console.log('From c3 Selection Single Key', chartUI.hook.chart.yIndexToKeyColumn[selectedPoints['index']])
-                            chartUI.props.onSelect.callback(chartUI.hook.chart.yIndexToKeyColumn[selectedPoints['index']]);
+                            chartUI.props.onSelect.callback.call(this, chartUI.hook.chart.yIndexToKeyColumn[selectedPoints['index']]);
                         }
 
 
                     },
                     onmouseover: function (point) {
                         console.log('From c3 Probe Key', chartUI.hook.chart.yIndexToKeyColumn[point['index']])
-                        chartUI.props.onProbe.callback(chartUI.hook.chart.yIndexToKeyColumn[point['index']]);
+                        chartUI.props.onProbe.callback.call(this, chartUI.hook.chart.yIndexToKeyColumn[point['index']]);
                     }
                 },
                 axis: {
@@ -95,7 +95,7 @@ class C3ScatterPlot extends React.Component {
     //tied with d3 creation
     componentDidMount() {
         this.initialize();
-        this.sessionData.dataSourceName.addImmediateCallback(this, this._setData, true);
+        WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).addImmediateCallback(this, this._setData, true);
         this.sessionData.xAxis.addImmediateCallback(this, this._setXAxis);
         this.sessionData.yAxis.addImmediateCallback(this, this._setYAxis);
     }
@@ -125,7 +125,7 @@ class C3ScatterPlot extends React.Component {
     getColumns(xColumnName, yColumnName) {
         this.hook.chart.keyColumnToYIndex = {}
         this.hook.chart.yIndexToKeyColumn = {}
-        var data = WeaveAPI.globalHashMap.getObject(this.sessionData.dataSourceName.value).getSessionState();
+        var data = this.sessionData.dataSourceWatcher.target.data.getSessionState();
         var createIndex = false;
         if (!data[0].hasOwnProperty('index')) {
             console.warn("Its a good practise to set key column. failing to do so, will create a index as key column");
@@ -160,7 +160,7 @@ class C3ScatterPlot extends React.Component {
                     x: this.state.xAxis,
                     y: this.state.yAxis
                 });
-                var rows = WeaveAPI.globalHashMap.getObject(this.sessionData.dataSourceName.value).getSessionState();
+                var rows = this.sessionData.dataSourceWatcher.target.data.getSessionState();
                 var columns = this.getColumns(this.state.xAxis, this.state.yAxis);
                 this.hook.chart.load({
                     columns: columns
@@ -178,12 +178,12 @@ class C3ScatterPlot extends React.Component {
     componentWillUnmount() {
         this.sessionData.xAxis.removeCallback(this._setXAxis);
         this.sessionData.yAxis.removeCallback(this._setYAxis);
-        this.sessionData.dataSourceName.removeCallback(this._setData);
+        this.sessionData.dataSourceWatcher.dispose();
     }
 
     render() {
-        var _data = WeaveAPI.globalHashMap.getObject(this.sessionData.dataSourceName.value);
-        if (_data) {
+        var _target = this.sessionData.dataSourceWatcher.target;
+        if (_target) {
             return <div className = 'Chart' > < /div>;
         } else {
             return <div className = 'Chart' > < h2 > No Data < /h2> < /div > ;

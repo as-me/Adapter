@@ -10,7 +10,7 @@ if (typeof window === 'undefined') {
     function D3Interface(chart) {
         adapter.Interface.call(this);
         if (chart)
-            this.chart = chart;
+            this._chart = chart;
 
         Object.defineProperty(this, 'chart', {
             get: function () {
@@ -38,6 +38,7 @@ if (typeof window === 'undefined') {
      */
     p.doSelection = function (keys) {
         if (!this.chart) {
+            console.log(this);
             console.log('Hook a d3 chart First');
             return;
         }
@@ -46,6 +47,7 @@ if (typeof window === 'undefined') {
 
     p.doProbe = function (key) {
         if (!this.chart) {
+            console.log(this);
             console.log('Hook a d3 chart First');
             return;
         }
