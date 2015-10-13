@@ -26,11 +26,6 @@ class D3ScatterPlot extends React.Component {
                 container: React.findDOMNode(this),
                 margin: this.props.padding ? this.props.padding : {},
                 size: this.props.size ? this.props.size : {},
-                columns: {
-                    x: this.state.xAxis,
-                    y: this.state.yAxis
-
-                },
                 interactions: {
                     onProbe: this.props.onProbe,
                     onSelect: this.props.onSelect
@@ -87,7 +82,15 @@ class D3ScatterPlot extends React.Component {
             }
             if (this.isDataChanged) {
                 var rows = this.sessionData.dataSourceWatcher.target.data.getSessionState();
-                this.hook.chart.renderChart(rows);
+                var data = {
+                    columns: {
+                        x: this.state.xAxis,
+                        y: this.state.yAxis
+
+                    },
+                    records: rows
+                };
+                this.hook.chart.renderChart(data);
                 this.isDataChanged = false;
             }
         }
