@@ -95,7 +95,7 @@ class C3ScatterPlot extends React.Component {
     //tied with d3 creation
     componentDidMount() {
         this.initialize();
-        WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).addImmediateCallback(this, this._setData, true, true);
+        WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).addGroupedCallback(this, this._setData, true);
         this.sessionData.xAxis.addImmediateCallback(this, this._setXAxis);
         this.sessionData.yAxis.addImmediateCallback(this, this._setYAxis);
     }

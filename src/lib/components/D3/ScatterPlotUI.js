@@ -47,7 +47,7 @@ class D3ScatterPlot extends React.Component {
     componentDidMount() {
         this.initialize();
         // make sure data update is called last , so that x and y axis property will be ready by then.
-        WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).addImmediateCallback(this, this._setData, true, true);
+        WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).addGroupedCallback(this, this._setData, true);
         this.sessionData.xAxis.addImmediateCallback(this, this._setXAxis);
         this.sessionData.yAxis.addImmediateCallback(this, this._setYAxis);
     }
