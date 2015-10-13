@@ -8,12 +8,13 @@ class D3ScatterPlot extends React.Component {
         this.hook = props.hook;
         this.state = this.sessionData.getSessionStateValue();
         this.initialize = this.initialize.bind(this);
-        this._setXAxis = this._setXAxis.bind(this);
-        this._setYAxis = this._setYAxis.bind(this);
-        this._setData = this._setData.bind(this);
+        //this._setXAxis = this._setXAxis.bind(this);
+        //this._setYAxis = this._setYAxis.bind(this);
+        //this._setData = this._setData.bind(this);
         this.isXAxisChanged = false;
         this.isYAxisChanged = false;
         this.isDataChanged = false;
+        this._setReactState = this._setReactState.bind(this);
     }
 
 
@@ -42,9 +43,10 @@ class D3ScatterPlot extends React.Component {
     componentDidMount() {
         this.initialize();
         // make sure data update is called last , so that x and y axis property will be ready by then.
-        WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).addGroupedCallback(this, this._setData, true);
-        this.sessionData.xAxis.addImmediateCallback(this, this._setXAxis);
-        this.sessionData.yAxis.addImmediateCallback(this, this._setYAxis);
+        WeaveAPI.SessionManager.getCallbackCollection(this.sessionData).addGroupedCallback(this, this._setReactState, true);
+        /*WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).addGroupedCallback(this, this._setData, true);
+               this.sessionData.xAxis.addImmediateCallback(this, this._setXAxis);
+               this.sessionData.yAxis.addImmediateCallback(this, this._setYAxis);*/
     }
 
     _setXAxis() {
@@ -69,10 +71,17 @@ class D3ScatterPlot extends React.Component {
 
     }
 
+    _setReactState() {
+        if (!this.hook.chart) {
+            this.initialize();
+        }
+        this.setState(this.sessionData.getSessionStateValue());
+    }
+
     //tied with d3 update
     componentDidUpdate(prevProps, prevState) {
         if (this.hook.chart) {
-            if (this.isXAxisChanged) {
+            /*if (this.isXAxisChanged) {
                 this.hook.chart.setXAttribute(this.state.xAxis);
                 this.isXAxisChanged = false;
             }
@@ -92,16 +101,28 @@ class D3ScatterPlot extends React.Component {
                 };
                 this.hook.chart.renderChart(data);
                 this.isDataChanged = false;
-            }
+            }*/
+
+            var rows = this.state.dataSource.data.getSessionState();
+            var data = {
+                columns: {
+                    x: this.state.xAxis,
+                    y: this.state.yAxis
+
+                },
+                records: rows
+            };
+            this.hook.chart.renderChart(data);
         }
 
     }
 
     //tied with d3 destruction
     componentWillUnmount() {
-        this.sessionData.xAxis.removeCallback(this._setXAxis);
+        /*this.sessionData.xAxis.removeCallback(this._setXAxis);
         this.sessionData.yAxis.removeCallback(this._setYAxis);
-        this.sessionData.dataSourceWatcher.dispose();
+        WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).removeCallback(this._setData);*/
+        WeaveAPI.SessionManager.getCallbackCollection(this.sessionData).removeCallback(this._setReactState);
     }
 
     render() {

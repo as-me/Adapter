@@ -96,7 +96,8 @@ if (typeof window === 'undefined') {
     p.getSessionStateValue = function () {
         return {
             'xAxis': this.xAxis.value,
-            'yAxis': this.yAxis.value
+            'yAxis': this.yAxis.value,
+            'dataSource': this._dataSourceWatcher.target
         };
 
     };
