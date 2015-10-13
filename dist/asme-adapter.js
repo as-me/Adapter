@@ -688,11 +688,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    container: _react2["default"].findDOMNode(this),
 	                    margin: this.props.padding ? this.props.padding : {},
 	                    size: this.props.size ? this.props.size : {},
-	                    columns: {
-	                        x: this.state.xAxis,
-	                        y: this.state.yAxis
-
-	                    },
 	                    interactions: {
 	                        onProbe: this.props.onProbe,
 	                        onSelect: this.props.onSelect
@@ -755,7 +750,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	                if (this.isDataChanged) {
 	                    var rows = this.sessionData.dataSourceWatcher.target.data.getSessionState();
-	                    this.hook.chart.renderChart(rows);
+	                    var data = {
+	                        columns: {
+	                            x: this.state.xAxis,
+	                            y: this.state.yAxis
+
+	                        },
+	                        records: rows
+	                    };
+	                    this.hook.chart.renderChart(data);
 	                    this.isDataChanged = false;
 	                }
 	            }
