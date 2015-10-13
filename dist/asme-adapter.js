@@ -672,12 +672,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.hook = props.hook;
 	        this.state = this.sessionData.getSessionStateValue();
 	        this.initialize = this.initialize.bind(this);
-	        this._setXAxis = this._setXAxis.bind(this);
-	        this._setYAxis = this._setYAxis.bind(this);
-	        this._setData = this._setData.bind(this);
+	        //this._setXAxis = this._setXAxis.bind(this);
+	        //this._setYAxis = this._setYAxis.bind(this);
+	        //this._setData = this._setData.bind(this);
 	        this.isXAxisChanged = false;
 	        this.isYAxisChanged = false;
 	        this.isDataChanged = false;
+	        this._setReactState = this._setReactState.bind(this);
 	    }
 
 	    _createClass(D3ScatterPlot, [{
@@ -708,9 +709,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function componentDidMount() {
 	            this.initialize();
 	            // make sure data update is called last , so that x and y axis property will be ready by then.
-	            WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).addGroupedCallback(this, this._setData, true);
-	            this.sessionData.xAxis.addImmediateCallback(this, this._setXAxis);
-	            this.sessionData.yAxis.addImmediateCallback(this, this._setYAxis);
+	            WeaveAPI.SessionManager.getCallbackCollection(this.sessionData).addGroupedCallback(this, this._setReactState, true);
+	            /*WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).addGroupedCallback(this, this._setData, true);
+	                   this.sessionData.xAxis.addImmediateCallback(this, this._setXAxis);
+	                   this.sessionData.yAxis.addImmediateCallback(this, this._setYAxis);*/
 	        }
 	    }, {
 	        key: "_setXAxis",
@@ -736,13 +738,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	            this.setState(this.sessionData.getDataSourceState());
 	        }
+	    }, {
+	        key: "_setReactState",
+	        value: function _setReactState() {
+	            if (!this.hook.chart) {
+	                this.initialize();
+	            }
+	            this.setState(this.sessionData.getSessionStateValue());
+	        }
 
 	        //tied with d3 update
 	    }, {
 	        key: "componentDidUpdate",
 	        value: function componentDidUpdate(prevProps, prevState) {
 	            if (this.hook.chart) {
-	                if (this.isXAxisChanged) {
+	                /*if (this.isXAxisChanged) {
 	                    this.hook.chart.setXAttribute(this.state.xAxis);
 	                    this.isXAxisChanged = false;
 	                }
@@ -756,13 +766,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        columns: {
 	                            x: this.state.xAxis,
 	                            y: this.state.yAxis
-
-	                        },
+	                         },
 	                        records: rows
 	                    };
 	                    this.hook.chart.renderChart(data);
 	                    this.isDataChanged = false;
-	                }
+	                }*/
+
+	                var rows = this.state.dataSource.data.getSessionState();
+	                var data = {
+	                    columns: {
+	                        x: this.state.xAxis,
+	                        y: this.state.yAxis
+
+	                    },
+	                    records: rows
+	                };
+	                this.hook.chart.renderChart(data);
 	            }
 	        }
 
@@ -770,9 +790,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: "componentWillUnmount",
 	        value: function componentWillUnmount() {
-	            this.sessionData.xAxis.removeCallback(this._setXAxis);
+	            /*this.sessionData.xAxis.removeCallback(this._setXAxis);
 	            this.sessionData.yAxis.removeCallback(this._setYAxis);
-	            this.sessionData.dataSourceWatcher.dispose();
+	            WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).removeCallback(this._setData);*/
+	            WeaveAPI.SessionManager.getCallbackCollection(this.sessionData).removeCallback(this._setReactState);
 	        }
 	    }, {
 	        key: "render",
@@ -914,7 +935,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    p.getSessionStateValue = function () {
 	        return {
 	            'xAxis': this.xAxis.value,
-	            'yAxis': this.yAxis.value
+	            'yAxis': this.yAxis.value,
+	            'dataSource': this._dataSourceWatcher.target
 	        };
 	    };
 
@@ -1138,9 +1160,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.hook = props.hook;
 	        this.state = this.sessionData.getSessionStateValue();
 	        this.initialize = this.initialize.bind(this);
-	        this._setXAxis = this._setXAxis.bind(this);
-	        this._setYAxis = this._setYAxis.bind(this);
-	        this._setData = this._setData.bind(this);
+	        //this._setXAxis = this._setXAxis.bind(this);
+	        //this._setYAxis = this._setYAxis.bind(this);
+	        //this._setData = this._setData.bind(this);
+	        this._setReactState = this._setReactState.bind(this);
 	        this.isXAxisChanged = false;
 	        this.isYAxisChanged = false;
 	        this.isDataChanged = false;
@@ -1175,20 +1198,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        },
 	                        onselected: function onselected() {
 	                            var selectedPoints = this.selected();
-	                            console.log('From c3 Selection selectedPoints Key', selectedPoints);
+	                            //console.log('From c3 Selection selectedPoints Key', selectedPoints);
 	                            if (selectedPoints.constructor === Array) {
 	                                var keys = selectedPoints.map(function (point) {
 	                                    return chartUI.hook.chart.yIndexToKeyColumn[point['index']];
 	                                });
-	                                console.log('From c3 Selection Multiple Key', keys);
+	                                //console.log('From c3 Selection Multiple Key', keys);
 	                                chartUI.props.onSelect.callback.call(this, keys);
 	                            } else {
-	                                console.log('From c3 Selection Single Key', chartUI.hook.chart.yIndexToKeyColumn[selectedPoints['index']]);
+	                                //console.log('From c3 Selection Single Key', chartUI.hook.chart.yIndexToKeyColumn[selectedPoints['index']])
 	                                chartUI.props.onSelect.callback.call(this, chartUI.hook.chart.yIndexToKeyColumn[selectedPoints['index']]);
 	                            }
 	                        },
 	                        onmouseover: function onmouseover(point) {
-	                            console.log('From c3 Probe Key', chartUI.hook.chart.yIndexToKeyColumn[point['index']]);
+	                            //console.log('From c3 Probe Key', chartUI.hook.chart.yIndexToKeyColumn[point['index']])
 	                            chartUI.props.onProbe.callback.call(this, chartUI.hook.chart.yIndexToKeyColumn[point['index']]);
 	                        }
 	                    },
@@ -1212,6 +1235,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                };
 	                this.hook.chart = _c32['default'].generate(config);
+	                var rows = this.state.dataSource.data.getSessionState();
+	                var records = this.getColumns(this.state.xAxis, this.state.yAxis);
+	                this.hook.chart.load({
+	                    columns: records
+	                });
 	            } else {
 	                console.warn("No Data Found");
 	            }
@@ -1222,9 +1250,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
 	            this.initialize();
-	            WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).addGroupedCallback(this, this._setData, true);
-	            this.sessionData.xAxis.addImmediateCallback(this, this._setXAxis);
-	            this.sessionData.yAxis.addImmediateCallback(this, this._setYAxis);
+	            WeaveAPI.SessionManager.getCallbackCollection(this.sessionData).addGroupedCallback(this, this._setReactState, true);
+	            //WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).addGroupedCallback(this, this._setData, true);
+	            //this.sessionData.xAxis.addImmediateCallback(this, this._setXAxis);
+	            //this.sessionData.yAxis.addImmediateCallback(this, this._setYAxis);
 	        }
 	    }, {
 	        key: '_setXAxis',
@@ -1251,6 +1280,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.setState(this.sessionData.getDataSourceState());
 	        }
 	    }, {
+	        key: '_setReactState',
+	        value: function _setReactState() {
+	            if (!this.hook.chart) {
+	                this.initialize();
+	            }
+	            this.setState(this.sessionData.getSessionStateValue());
+	        }
+	    }, {
 	        key: 'getColumns',
 	        value: function getColumns(xColumnName, yColumnName) {
 	            this.hook.chart.keyColumnToYIndex = {};
@@ -1270,13 +1307,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // in c3 index value is mapped with Y axis value
 	            // So map our keycolumn value with Y index which aids in exact selection and probing
 	            data.forEach((function (object, i) {
-	                columns[0].push(object[xColumnName]);
-	                columns[1].push(object[yColumnName]);
 	                if (createIndex) object['index'] = i;
+	                if (typeof object[xColumnName] === 'string') {
+	                    if (isNaN(Number(object[xColumnName]))) {
+	                        columns[0].push(object['index']);
+	                    } else {
+	                        columns[0].push(Number(object[xColumnName]));
+	                    }
+	                } else {
+	                    columns[0].push(object[xColumnName]);
+	                }
+	                if (typeof object[yColumnName] === 'string') {
+	                    if (isNaN(Number(object[yColumnName]))) {
+	                        columns[1].push(object['index']);
+	                    } else {
+	                        columns[1].push(Number(object[yColumnName]));
+	                    }
+	                } else {
+	                    columns[1].push(object[yColumnName]);
+	                }
 	                this.hook.chart.keyColumnToYIndex[object[keyCol]] = i;
 	                this.hook.chart.yIndexToKeyColumn[i] = object[keyCol];
 	            }).bind(this));
-	            console.log(columns);
 
 	            return columns;
 	        }
@@ -1292,7 +1344,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        x: this.state.xAxis,
 	                        y: this.state.yAxis
 	                    });
-	                    var rows = this.sessionData.dataSourceWatcher.target.data.getSessionState();
+	                    var rows = this.state.dataSource.data.getSessionState();
 	                    var columns = this.getColumns(this.state.xAxis, this.state.yAxis);
 	                    this.hook.chart.load({
 	                        columns: columns
@@ -1308,9 +1360,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'componentWillUnmount',
 	        value: function componentWillUnmount() {
-	            this.sessionData.xAxis.removeCallback(this._setXAxis);
-	            this.sessionData.yAxis.removeCallback(this._setYAxis);
-	            this.sessionData.dataSourceWatcher.dispose();
+	            //this.sessionData.xAxis.removeCallback(this._setXAxis);
+	            //this.sessionData.yAxis.removeCallback(this._setYAxis);
+	            //WeaveAPI.SessionManager.getCallbackCollection(this.sessionData.dataSourceWatcher).removeCallback(this._setData);
+	            WeaveAPI.SessionManager.getCallbackCollection(this.sessionData).removeCallback(this._setReactState);
 	        }
 	    }, {
 	        key: 'render',
