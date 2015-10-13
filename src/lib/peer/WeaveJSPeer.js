@@ -85,6 +85,8 @@ if (typeof window === 'undefined') {
         if (this.hooks.childListCallbacks.lastObjectRemoved) {
             var removedTool = this.hooks.childListCallbacks.lastObjectRemoved;
             removedTool.sessionData.dataSourceWatcher.dispose();
+            WeaveAPI.SessionManager.dispose(removedTool.sessionData);
+            WeaveAPI.SessionManager.dispose(removedTool);
         }
     }
 
