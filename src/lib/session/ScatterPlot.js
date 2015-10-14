@@ -69,12 +69,22 @@ if (typeof window === 'undefined') {
 
         /**
          * @public
+         * @property dataSourcePath
+         * @readOnly
+         * @type weavecore.LinkableVariable
+         */
+        Object.defineProperty(this, 'dataSourcePath', {
+            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableVariable([]))
+        });
+
+        /**
+         * @public
          * @property dataSourceName
          * @readOnly
          * @type weavecore.LinkableString
          */
         Object.defineProperty(this, '_dataSourceWatcher', {
-            value: WeaveAPI.SessionManager.registerLinkableChild(this, new weavecore.LinkableWatcher())
+            value: new weavecore.LinkableWatcher()
         });
 
 
@@ -83,6 +93,8 @@ if (typeof window === 'undefined') {
                 return this._dataSourceWatcher;
             }
         });
+
+        WeaveAPI.SessionManager.getCallbackCollection(this.dataSourceWatcher).addImmediateCallback(this, this._updateDataSourcePath.bind(this), true);
     }
 
     // Prototypes
@@ -97,10 +109,15 @@ if (typeof window === 'undefined') {
         return {
             'xAxis': this.xAxis.value,
             'yAxis': this.yAxis.value,
-            'dataSource': this._dataSourceWatcher.target
+            'dataSourcePath': this.dataSourcePath.getSessionState()
         };
 
     };
+
+    p._updateDataSourcePath = function () {
+        var path = this.dataSourceWatcher.targetPath;
+        this.dataSourcePath.setSessionState(path);
+    }
 
     // public methods:
     /**
@@ -135,12 +152,12 @@ if (typeof window === 'undefined') {
     };
 
     /**
-     * @method getYAxisValue
+     * @method getDataSourceState
      * @return {Object}
      */
     p.getDataSourceState = function () {
         return {
-            'dataSource': this._dataSourceWatcher.target
+            'dataSourcePath': this.dataSourcePath.getSessionState()
         };
     };
 

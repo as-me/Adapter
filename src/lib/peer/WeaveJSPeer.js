@@ -59,10 +59,14 @@ if (typeof window === 'undefined') {
 
     function renderSelection() {
         var keys = this.selectionKeys.getSessionState();
+        console.log(keys);
         var hookedTools = this.hooks.getObjects();
         hookedTools.forEach(function (tool, index) {
-            if (tool.hook.chart != this.activeHook)
+            if (tool.hook.chart !== this.activeHook) {
+                console.log(tool.hook, keys);
                 tool.hook.doSelection(keys);
+            }
+
         }.bind(this));
         this.activeHook = null;
     }

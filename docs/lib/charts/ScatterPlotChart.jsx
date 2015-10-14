@@ -47,7 +47,6 @@ var ScatterPlotChart = React.createClass({
                         }
                     }
         );
-        //tool.sessionData.dataSourceName.value = 'cereal';
         tool.sessionData.xAxis.value = 'fat';
         tool.sessionData.yAxis.value = 'index';
 
@@ -77,7 +76,6 @@ var ScatterPlotChart = React.createClass({
                     }
                 }
         );
-        // tool2.sessionData.dataSourceName.value = 'cereal';
         tool2.sessionData.xAxis.value = 'fat';
         tool2.sessionData.yAxis.value = 'index';
 
