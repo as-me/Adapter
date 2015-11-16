@@ -3,6 +3,7 @@
  */
 
 require('weavecore');
+require('weavedata');
 import '../session/DataSource.js';
 
 //namespace
@@ -26,30 +27,44 @@ if (typeof window === 'undefined') {
         adapter.Interface.call(this);
         this.activeHook = null;
 
+
         // set Probe and Selection keys
-        Object.defineProperty(this, 'probeKeys', {
-            value: WeaveAPI.globalHashMap.requestObject('probeKeys', weavecore.LinkableVariable, false)
+        Object.defineProperty(this, 'probeKeysPath', {
+            value: weave.path('defaultProbeKeySet').request('weavecore.LinkableVariable')
         });
 
-        Object.defineProperty(this, 'selectionKeys', {
-            value: WeaveAPI.globalHashMap.requestObject('selectionKeys', weavecore.LinkableVariable, false)
+        Object.defineProperty(this, 'selectionKeysPath', {
+            value: weave.path('defaultSelectionKeySet').request('weavecore.LinkableVariable')
+        });
+
+        Object.defineProperty(this, 'filterKeysPath', {
+            value: weave.path('defaultSubsetKeyFilter').request('weavecore.LinkableVariable')
+        });
+
+
+        Object.defineProperty(this, 'hooksPath', {
+            value: weave.path('hooks').request('weavecore.LinkableHashMap')
+        });
+
+        Object.defineProperty(this, 'dataSourcesPath', {
+            value: weave.path('dataSources').request('weavecore.LinkableHashMap')
         });
 
         Object.defineProperty(this, 'hooks', {
-            value: WeaveAPI.globalHashMap.requestObject('hooks', weavecore.LinkableHashMap, false)
+            value: WeaveAPI.globalHashMap.getObject('hooks')
         });
 
         Object.defineProperty(this, 'dataSources', {
-            value: WeaveAPI.globalHashMap.requestObject('dataSources', weavecore.LinkableHashMap, false)
+            value: WeaveAPI.globalHashMap.getObject('dataSources')
         });
 
-        this.selectionKeys.setSessionState([]);
-        this.probeKeys.setSessionState(null);
+        this.selectionKeysPath.state([]);
+        this.probeKeysPath.state(null);
 
-        this.selectionKeys.addImmediateCallback(this, renderSelection.bind(this));
-        this.probeKeys.addImmediateCallback(this, renderProbe.bind(this));
+        this.selectionKeysPath.addCallback(renderSelection.bind(this), false, true);
+        this.probeKeysPath.addCallback(renderProbe.bind(this), false, true);
 
-        this.hooks.childListCallbacks.addImmediateCallback(this, updateDataSource.bind(this));
+        this.hooks.childListCallbacks.addImmediateCallback(this, updateDataSource.bind(this), false, true);
     }
 
 
@@ -58,7 +73,7 @@ if (typeof window === 'undefined') {
     WeaveJSInterface.prototype.constructor = WeaveJSInterface;
 
     function renderSelection() {
-        var keys = this.selectionKeys.getSessionState();
+        var keys = this.selectionKeysPath.getState();
         console.log(keys);
         var hookedTools = this.hooks.getObjects();
         hookedTools.forEach(function (tool, index) {
@@ -72,10 +87,10 @@ if (typeof window === 'undefined') {
     }
 
     function renderProbe() {
-        var key = this.probeKeys.getSessionState();
+        var key = this.probeKeysPath.getState();
         var hookedTools = this.hooks.getObjects();
         hookedTools.forEach(function (tool, index) {
-            if (tool.hook.chart != this.activeHook)
+            if (tool.hook.chart !== this.activeHook)
                 tool.hook.doProbe(key);
         }.bind(this));
         this.activeHook = null;
@@ -103,7 +118,7 @@ if (typeof window === 'undefined') {
      */
     p.doSelection = function (keys) {
         keys = keys.length > 0 ? keys : [];
-        this.selectionKeys.setSessionState(keys);
+        this.selectionKeysPath.state(keys);
     }
 
     /**
@@ -113,7 +128,7 @@ if (typeof window === 'undefined') {
      */
     p.doProbe = function (key) {
         key = key !== undefined ? key : null;
-        this.probeKeys.setSessionState(key);
+        this.probeKeysPath.state(key);
     }
 
 

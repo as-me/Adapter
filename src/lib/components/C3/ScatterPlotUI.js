@@ -74,7 +74,7 @@ class C3ScatterPlot extends React.Component {
                     }
                 },
                 onmouseout: function () {
-                    WeaveAPI.globalHashMap.getObject('selectionKeys').setSessionState([]);
+                    WeaveAPI.globalHashMap.getObject('defaultSelectionKeySet').setSessionState([]);
                 },
                 legend: {
                     show: false

@@ -8,12 +8,14 @@ exports.peer = {};
 exports.peer.WeaveJSPeer = require("./lib/peer/WeaveJSPeer.js");
 
 exports.components = {};
+exports.components.AbstractTool = require("./lib/components/AbstractTool.js");
 
 exports.components.D3 = {}
 exports.components.D3.ScatterPlotTool = require("./lib/components/D3/ScatterPlot.js");
 
 exports.components.C3 = {}
 exports.components.C3.ScatterPlotTool = require("./lib/components/C3/ScatterPlot.js");
+exports.components.C3.WeaveC3 = require("./lib/components/C3/WeaveC3.js");
 
 
 //namesapce
