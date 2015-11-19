@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require(undefined), require("weavedata"), require("React"), require("d3chart"), require("c3"), require("lodash"));
+		module.exports = factory(require(undefined), require("weavedata"), require("React"), require("d3chart"), require("c3"));
 	else if(typeof define === 'function' && define.amd)
-		define([, "weavedata", "React", "d3chart", "c3", "lodash"], factory);
+		define([, "weavedata", "React", "d3chart", "c3"], factory);
 	else if(typeof exports === 'object')
-		exports["AsmeAdapter"] = factory(require(undefined), require("weavedata"), require("React"), require("d3chart"), require("c3"), require("lodash"));
+		exports["AsmeAdapter"] = factory(require(undefined), require("weavedata"), require("React"), require("d3chart"), require("c3"));
 	else
-		root["AsmeAdapter"] = factory(root[undefined], root["weavedata"], root["React"], root["d3chart"], root["c3"], root["lodash"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_6__, __WEBPACK_EXTERNAL_MODULE_7__, __WEBPACK_EXTERNAL_MODULE_10__, __WEBPACK_EXTERNAL_MODULE_12__, __WEBPACK_EXTERNAL_MODULE_16__, __WEBPACK_EXTERNAL_MODULE_18__) {
+		root["AsmeAdapter"] = factory(root[undefined], root["weavedata"], root["React"], root["d3chart"], root["c3"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_6__, __WEBPACK_EXTERNAL_MODULE_7__, __WEBPACK_EXTERNAL_MODULE_9__, __WEBPACK_EXTERNAL_MODULE_11__, __WEBPACK_EXTERNAL_MODULE_15__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -66,14 +66,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.peer.WeaveJSPeer = __webpack_require__(4);
 
 	exports.components = {};
-	exports.components.AbstractTool = __webpack_require__(8);
 
 	exports.components.D3 = {};
-	exports.components.D3.ScatterPlotTool = __webpack_require__(9);
+	exports.components.D3.ScatterPlotTool = __webpack_require__(8);
 
 	exports.components.C3 = {};
-	exports.components.C3.ScatterPlotTool = __webpack_require__(14);
-	exports.components.C3.WeaveC3 = __webpack_require__(17);
+	exports.components.C3.ScatterPlotTool = __webpack_require__(13);
 
 	//namesapce
 	if (typeof window === 'undefined') {
@@ -290,15 +288,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        // set Probe and Selection keys
 	        Object.defineProperty(this, 'probeKeysPath', {
-	            value: weave.path('defaultProbeKeySet').request('weavecore.LinkableVariable')
+	            value: weave.path('defaultProbeKeySet')
 	        });
 
 	        Object.defineProperty(this, 'selectionKeysPath', {
-	            value: weave.path('defaultSelectionKeySet').request('weavecore.LinkableVariable')
+	            value: weave.path('defaultSelectionKeySet')
 	        });
 
 	        Object.defineProperty(this, 'filterKeysPath', {
-	            value: weave.path('defaultSubsetKeyFilter').request('weavecore.LinkableVariable')
+	            value: weave.path('defaultSubsetKeyFilter')
 	        });
 
 	        Object.defineProperty(this, 'hooksPath', {
@@ -317,8 +315,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            value: WeaveAPI.globalHashMap.getObject('dataSources')
 	        });
 
-	        this.selectionKeysPath.state([]);
-	        this.probeKeysPath.state(null);
+	        //this.selectionKeysPath.state([]);
+	        //this.probeKeysPath.state(null);
 
 	        this.selectionKeysPath.addCallback(renderSelection.bind(this), false, true);
 	        this.probeKeysPath.addCallback(renderProbe.bind(this), false, true);
@@ -354,13 +352,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function updateDataSource() {
 	        if (this.hooks.childListCallbacks.lastObjectAdded) {
 	            var addedTool = this.hooks.childListCallbacks.lastObjectAdded;
-	            addedTool.sessionData.dataSourceWatcher.targetPath = WeaveAPI.SessionManager.getPath(WeaveAPI.globalHashMap, this.dataSources.getObject(this.dataSources.getNames()[0]));
+	            if (addedTool.sessionData) addedTool.sessionData.dataSourceWatcher.targetPath = WeaveAPI.SessionManager.getPath(WeaveAPI.globalHashMap, this.dataSources.getObject(this.dataSources.getNames()[0]));
 	        }
 	        if (this.hooks.childListCallbacks.lastObjectRemoved) {
 	            var removedTool = this.hooks.childListCallbacks.lastObjectRemoved;
-	            removedTool.sessionData.dataSourceWatcher.dispose();
-	            WeaveAPI.SessionManager.disposeObject(removedTool.sessionData);
-	            WeaveAPI.SessionManager.disposeObject(removedTool);
+	            if (removedTool.sessionData) {
+	                removedTool.sessionData.dataSourceWatcher.dispose();
+	                WeaveAPI.SessionManager.disposeObject(removedTool.sessionData);
+	                WeaveAPI.SessionManager.disposeObject(removedTool);
+	            }
 	        }
 	    }
 
@@ -401,6 +401,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * This function request for hook which is either instance of IlinkableObject or has sessionable property value true
 	     * @method requestHook
 	     * @param {String} name to identify the object in session state
+	     * @param {String} className of sessionable Object
+	     * @return {WeavePath}
+	     */
+	    p.requestHookPath = function (name, className) {
+	        return this.hooksPath.push(name).request(className);
+	    };
+
+	    /**
+	     * This function request for hook which is either instance of IlinkableObject or has sessionable property value true
+	     * @method requestHook
+	     * @param {String} name to identify the object in session state
 	     * @param {Object} classDefn sessionable Object
 	     * @return {Object} Mostly DOM element which is wrapped with sessionable propert
 	     */
@@ -433,6 +444,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // p.register
 
 	    adapter.peer.WeaveJSInterface = WeaveJSInterface;
+	    //weavecore.ClassUtils.registerClass('adapter.peer.WeaveJSInterface', WeaveJSInterface);
 	})();
 
 /***/ },
@@ -533,66 +545,21 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 8 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var AbstractTool = (function () {
-	    function AbstractTool(props) {
-	        _classCallCheck(this, AbstractTool);
-
-	        this.props = props;
-	        this.element = props.element;
-	        this.toolPath = props.toolPath;
-	    }
-
-	    _createClass(AbstractTool, [{
-	        key: "_getElementSize",
-	        value: function _getElementSize() {
-	            return {
-	                width: this.element.clientWidth,
-	                height: this.element.clientHeight
-	            };
-	        }
-	    }, {
-	        key: "resize",
-	        value: function resize() {}
-	    }, {
-	        key: "destroy",
-	        value: function destroy() {}
-	    }]);
-
-	    return AbstractTool;
-	})();
-
-	exports["default"] = AbstractTool;
-	module.exports = exports["default"];
-
-/***/ },
-/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _react = __webpack_require__(10);
+	var _react = __webpack_require__(9);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _ScatterPlotUI = __webpack_require__(11);
+	var _ScatterPlotUI = __webpack_require__(10);
 
 	var _ScatterPlotUI2 = _interopRequireDefault(_ScatterPlotUI);
 
-	__webpack_require__(13);
+	__webpack_require__(12);
 
 	__webpack_require__(6);
 
@@ -708,13 +675,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-/* 10 */
+/* 9 */
 /***/ function(module, exports) {
 
-	module.exports = __WEBPACK_EXTERNAL_MODULE_10__;
+	module.exports = __WEBPACK_EXTERNAL_MODULE_9__;
 
 /***/ },
-/* 11 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -729,9 +696,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	__webpack_require__(12);
+	__webpack_require__(11);
 
-	var _react = __webpack_require__(10);
+	var _react = __webpack_require__(9);
 
 	var _react2 = _interopRequireDefault(_react);
 
@@ -859,13 +826,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = D3ScatterPlot;
 
 /***/ },
-/* 12 */
+/* 11 */
 /***/ function(module, exports) {
 
-	module.exports = __WEBPACK_EXTERNAL_MODULE_12__;
+	module.exports = __WEBPACK_EXTERNAL_MODULE_11__;
 
 /***/ },
-/* 13 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1032,22 +999,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-/* 14 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _react = __webpack_require__(10);
+	var _react = __webpack_require__(9);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _ScatterPlotUI = __webpack_require__(15);
+	var _ScatterPlotUI = __webpack_require__(14);
 
 	var _ScatterPlotUI2 = _interopRequireDefault(_ScatterPlotUI);
 
-	__webpack_require__(13);
+	__webpack_require__(12);
 
 	__webpack_require__(6);
 
@@ -1173,7 +1140,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-/* 15 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1188,11 +1155,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var _c3 = __webpack_require__(16);
+	var _c3 = __webpack_require__(15);
 
 	var _c32 = _interopRequireDefault(_c3);
 
-	var _react = __webpack_require__(10);
+	var _react = __webpack_require__(9);
 
 	var _react2 = _interopRequireDefault(_react);
 
@@ -1401,338 +1368,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = C3ScatterPlot;
 
 /***/ },
-/* 16 */
+/* 15 */
 /***/ function(module, exports) {
 
-	module.exports = __WEBPACK_EXTERNAL_MODULE_16__;
-
-/***/ },
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _AbstractToolJs = __webpack_require__(8);
-
-	var _AbstractToolJs2 = _interopRequireDefault(_AbstractToolJs);
-
-	var _c3 = __webpack_require__(16);
-
-	var _c32 = _interopRequireDefault(_c3);
-
-	var _lodash = __webpack_require__(18);
-
-	var _lodash2 = _interopRequireDefault(_lodash);
-
-	/* private
-	 * @param records array or records
-	 * @param attributes array of attributes to be normalized
-	 */
-	function _normalizeRecords(records, attributes) {
-
-	    // to avoid computing the stats at each iteration.
-	    var columnStatsCache = {};
-	    attributes.forEach(function (attr) {
-	        columnStatsCache[attr] = {
-	            min: _lodash2["default"].min(_lodash2["default"].pluck(records, attr)),
-	            max: _lodash2["default"].max(_lodash2["default"].pluck(records, attr))
-	        };
-	    });
-
-	    return records.map(function (record) {
-
-	        var obj = {};
-
-	        attributes.forEach(function (attr) {
-	            var min = columnStatsCache[attr].min;
-	            var max = columnStatsCache[attr].max;
-
-	            if (!min || !max || max - min === 0) {
-	                return 0;
-	            }
-
-	            if (record[attr]) {
-	                // console.log( (record[attr] - min) / (max - min));
-	                obj[attr] = (record[attr] - min) / (max - min);
-	            } else {
-	                // if any of the value above is null then
-	                // we can't normalize
-	                obj[attr] = null;
-	            }
-	        });
-
-	        return obj;
-	    });
-	}
-
-	var WeaveC3ScatterPlot = (function (_AbstractTool) {
-	    _inherits(WeaveC3ScatterPlot, _AbstractTool);
-
-	    function WeaveC3ScatterPlot(props) {
-	        var _this = this;
-
-	        _classCallCheck(this, WeaveC3ScatterPlot);
-
-	        _get(Object.getPrototypeOf(WeaveC3ScatterPlot.prototype), "constructor", this).call(this, props);
-	        this._visualizationPath = this.toolPath.push("children", "visualization");
-	        this._plotterPath = this.toolPath.pushPlotter("plot");
-
-	        this._dataXPath = this._plotterPath.push("dataX");
-	        this._dataYPath = this._plotterPath.push("dataY");
-	        this._xAxisPath = this.toolPath.pushPlotter("xAxis");
-	        this._yAxisPath = this.toolPath.pushPlotter("yAxis");
-
-	        this._fillStylePath = this._plotterPath.push("fill");
-	        this._lineStylePath = this._plotterPath.push("line");
-	        this._sizeByPath = this._plotterPath.push("sizeBy");
-
-	        this.plotterState = {};
-
-	        this._plotterPath.addCallback(function () {
-	            _this.plotterState = _this._plotterPath.getState();
-	            _this._dataChanged();
-	        }, true);
-
-	        this._c3Options = {
-	            bindto: this.element,
-	            data: {
-	                rows: [],
-	                x: "x",
-	                xSort: false,
-	                type: "scatter", //,
-	                selection: {
-	                    enabled: true,
-	                    multiple: true,
-	                    draggable: true
-	                },
-	                color: function color(_color, d) {
-	                    if (_this.records && d.hasOwnProperty("index")) {
-	                        var record = _this.records[d.index];
-	                        return record && record.fill && record.fill.color ? record.fill.color : "#C0CDD1";
-	                    }
-	                    return "#C0CDD1";
-	                },
-	                onselected: function onselected(d) {
-	                    if (d && d.hasOwnProperty("index")) {
-	                        _this.toolPath.selection_keyset.addKeys([_this.indexToKey[d.index]]);
-	                    }
-	                },
-	                onunselected: function onunselected(d) {
-	                    if (d && d.hasOwnProperty("index")) {
-	                        _this.toolPath.selection_keyset.removeKeys([_this.indexToKey[d.index]]);
-	                    }
-	                },
-	                onmouseover: function onmouseover(d) {
-	                    if (d && d.hasOwnProperty("index")) {
-	                        _this.toolPath.probe_keyset.setKeys([_this.indexToKey[d.index]]);
-	                    }
-	                },
-	                onmouseout: function onmouseout(d) {
-	                    if (d && d.hasOwnProperty("index")) {
-	                        _this.toolPath.probe_keyset.setKeys([]);
-	                    }
-	                }
-	            },
-	            legend: {
-	                show: false
-	            },
-	            axis: {
-	                x: {
-	                    label: {
-	                        position: "outer-center"
-	                    },
-	                    tick: {
-	                        fit: false
-	                    }
-	                },
-	                y: {
-	                    label: {
-	                        position: "outer-middle"
-	                    },
-	                    tick: {
-	                        fit: false
-	                    }
-	                }
-	            },
-	            grid: {
-	                x: {
-	                    show: true
-	                },
-	                y: {
-	                    show: true
-	                }
-	            },
-	            point: {
-	                r: function r(d) {
-	                    if (d.hasOwnProperty("index")) {
-	                        return _this.normalizedPointSizes[d.index];
-	                    }
-	                }
-	            },
-	            onrendered: this._updateStyle.bind(this)
-	        };
-
-	        this.chart = _c32["default"].generate(this._c3Options);
-
-	        this._setupCallbacks();
-	    }
-
-	    //registerToolImplementation("weave.visualization.tools::ScatterPlotTool", WeaveC3ScatterPlot);
-
-	    _createClass(WeaveC3ScatterPlot, [{
-	        key: "_setupCallbacks",
-	        value: function _setupCallbacks() {
-	            var dataChanged = _lodash2["default"].debounce(this._dataChanged.bind(this), 100);
-
-	            [this._dataXPath, this._dataYPath, this._sizeByPath, this._fillStylePath, this._lineStylePath].forEach(function (path) {
-	                path.addCallback(dataChanged, true, false);
-	            });
-
-	            var axisChanged = _lodash2["default"].debounce(this._axisChanged.bind(this), 100);
-	            [this._dataXPath, this._dataYPath, this._xAxisPath, this._yAxisPath].forEach(function (path) {
-	                path.addCallback(axisChanged, true, false);
-	            });
-
-	            this.toolPath.selection_keyset.addCallback(this._selectionKeysChanged.bind(this), true, false);
-
-	            //console.log(this.toolPath.probe_keyset);
-	            this.toolPath.probe_keyset.addCallback(this._probedKeysChanged.bind(this), true, false);
-	        }
-	    }, {
-	        key: "resize",
-	        value: function resize() {
-	            this.chart.resize(this._getElementSize());
-	        }
-	    }, {
-	        key: "_axisChanged",
-	        value: function _axisChanged() {
-
-	            if (this.busy) {
-	                return;
-	            }
-
-	            this.chart.axis.labels({
-	                x: this._xAxisPath.push("overrideAxisName").getState() || this._dataXPath.getValue("weavedata.ColumnUtils.getTitle(this)"),
-	                y: this._yAxisPath.push("overrideAxisName").getState() || this._dataYPath.getValue("weavedata.ColumnUtils.getTitle(this)")
-	            });
-	        }
-	    }, {
-	        key: "_dataChanged",
-	        value: function _dataChanged() {
-	            var _this2 = this;
-
-	            if (this.busy) {
-	                return;
-	            }
-	            var mapping = {
-	                point: {
-	                    x: this._dataXPath,
-	                    y: this._dataYPath
-	                },
-	                size: this._sizeByPath,
-	                fill: {
-	                    alpha: this._fillStylePath.push("alpha"),
-	                    color: this._fillStylePath.push("color")
-	                },
-	                line: {
-	                    alpha: this._lineStylePath.push("alpha"),
-	                    color: this._lineStylePath.push("color"),
-	                    caps: this._lineStylePath.push("caps")
-	                }
-	            };
-
-	            this.records = _lodash2["default"].sortByOrder(this._plotterPath.retrieveRecords(mapping, this._plotterPath.push("filteredKeySet")), ["size", "id"], ["desc", "asc"]);
-
-	            this.keyToIndex = {};
-	            this.indexToKey = {};
-
-	            this.records.forEach(function (record, index) {
-	                _this2.keyToIndex[record.id] = index;
-	                _this2.indexToKey[index] = record.id;
-	            });
-
-	            this.normalizedRecords = _normalizeRecords(this.records, ["size"]);
-
-	            this.normalizedPointSizes = this.normalizedRecords.map(function (normalizedRecord) {
-	                if (_this2.plotterState && _this2.plotterState.sizeBy.length) {
-	                    var minScreenRadius = _this2.plotterState.minScreenRadius;
-	                    var maxScreenRadius = _this2.plotterState.maxScreenRadius;
-
-	                    return (normalizedRecord && normalizedRecord.size ? minScreenRadius + normalizedRecord.size * (maxScreenRadius - minScreenRadius) : _this2.plotterState.defaultScreenRadius) || 1;
-	                } else {
-	                    return _this2.plotterState.defaultScreenRadius || 1;
-	                }
-	            });
-
-	            this._axisChanged();
-	            this.busy = true;
-	            this.chart.load({
-	                data: _lodash2["default"].pluck(this.records, "point"),
-	                unload: true,
-	                done: function done() {
-	                    _this2.busy = false;
-	                }
-	            });
-	        }
-	    }, {
-	        key: "_selectionKeysChanged",
-	        value: function _selectionKeysChanged() {
-	            var _this3 = this;
-
-	            var keys = this.toolPath.selection_keyset.getKeys();
-	            var indices = keys.map(function (key) {
-	                return Number(_this3.keyToIndex[key]);
-	            });
-	            this.chart.select("y", indices, true);
-	        }
-	    }, {
-	        key: "_probedKeysChanged",
-	        value: function _probedKeysChanged() {
-	            /*
-	            var keys = this.toolPath.probe_keyset.getKeys();
-	            var indices = keys.map( (key) => {
-	                return Number(this.keyToIndex[key]);
-	            });
-	            */
-	            // this.chart.select("y", indices, true);
-	        }
-	    }, {
-	        key: "_updateStyle",
-	        value: function _updateStyle() {
-	            d3.selectAll(this.element).selectAll("circle").style("opacity", 1).style("stroke", "black").style("stroke-opacity", 0.5);
-	        }
-	    }, {
-	        key: "destroy",
-	        value: function destroy() {
-	            this.chart.destroy();
-	        }
-	    }]);
-
-	    return WeaveC3ScatterPlot;
-	})(_AbstractToolJs2["default"]);
-
-	exports["default"] = WeaveC3ScatterPlot;
-	module.exports = exports["default"];
-
-/***/ },
-/* 18 */
-/***/ function(module, exports) {
-
-	module.exports = __WEBPACK_EXTERNAL_MODULE_18__;
+	module.exports = __WEBPACK_EXTERNAL_MODULE_15__;
 
 /***/ }
 /******/ ])

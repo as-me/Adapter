@@ -2,6 +2,7 @@
 /**/
 var React = require('react');
 var d3 = require('d3');
+var _ = require('lodash');
 var parseDate = d3.time.format("%Y-%m-%d").parse
 
 require('../src/styles/asme-adapter');
@@ -13,10 +14,17 @@ var MainContainer = require('lib/main-container');
 var MenuGroup = require('lib/menu-group');
 var MenuItem = require('lib/MenuItem');
 
+require('lib/ui/WeavePanelManager');
+require('lib/ui/WeaveLayoutManager');
+require('lib/ui/WeaveTool');
+require('lib/ui/AbstractWeaveTool');
+require('lib/ui/WeavePanel');
+
 
 var pages = [
 	require('lib/page/GettingStartedPage'),
     require('lib/page/ScatterPlotPage'),
+    require('lib/page/WeaveC3ScatterPlotPage'),
     require('lib/page/ComingSoonPage')
 ];
 
@@ -80,7 +88,7 @@ function renderPage() {
         }
     };
 
-    React.render( < ExamplesPage / > , document.getElementById("chart-goes-here"));
+    ReactDOM.render( < ExamplesPage / > , document.getElementById("chart-goes-here"));
 }
 
 d3.csv("data/testCereal.csv", function (d, i) {
@@ -92,6 +100,38 @@ d3.csv("data/testCereal.csv", function (d, i) {
     AdapterAPI.peer.requestDataSource("cereal", adapter.session.DataSource).data.setSessionState(rows);
     renderPage();
     WeaveAPI.log = new weavecore.SessionStateLog(WeaveAPI.globalHashMap);
+    /*var dspath = weave.path("cereal").request('weavedata.CSVDataSource');
+    var csvData = "col1,col2\n" +
+        "124,532\n" +
+        "389,197\n"
+    "289,349\n";
+    var dsDataPath = weave.path(['cereal', 'csvData']);
+    dsDataPath.state(csvData);*/
+    var dsPath = weave.path('cereal').request('weavedata.CSVDataSource');
+    var dsURLPath = weave.path(['cereal', 'url']);
+
+
+    var sp = WeaveAPI.globalHashMap.getObject('hooks').getObject('ScatterPlotTool');
+    /*if (sp) {
+        var ds = WeaveAPI.globalHashMap.getObject('cereal');
+        ds.putColumn(4, sp.plotter.dataX);
+        ds.putColumn(6, sp.plotter.dataY);
+    }*/
+
+    dsURLPath.state('http://as-me.github.io/dashboard/data/testCereal.csv');
+
 
 
 });
+
+var dataYMeta = {
+    "csvColumn": "calories",
+    "keyType": "cereal",
+    "title": "calories"
+}
+
+var dataXMeta = {
+    "csvColumn": "name",
+    "keyType": "cereal",
+    "title": "name"
+}

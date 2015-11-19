@@ -1,6 +1,9 @@
-import AbstractTool from "../AbstractTool.js";
+import AbstractWeaveTool from "../ui/AbstractWeaveTool.js";
 import c3 from "c3";
 import lodash from "lodash";
+import WeavePanelManager from "../ui/WeavePanelManager.js";
+console.log('WeavePanelManager:', WeavePanelManager);
+
 
 
 /* private
@@ -44,17 +47,17 @@ function _normalizeRecords(records, attributes) {
     });
 }
 
-export default class WeaveC3ScatterPlot extends AbstractTool {
+class WeaveC3ScatterPlot extends AbstractWeaveTool {
 
     constructor(props) {
         super(props);
         this._visualizationPath = this.toolPath.push("children", "visualization");
-        this._plotterPath = this.toolPath.pushPlotter("plot");
+        this._plotterPath = this.toolPath.pushPlotter("plot", null, 1); //1 - as the tool is in depth level 1
 
         this._dataXPath = this._plotterPath.push("dataX");
         this._dataYPath = this._plotterPath.push("dataY");
-        this._xAxisPath = this.toolPath.pushPlotter("xAxis");
-        this._yAxisPath = this.toolPath.pushPlotter("yAxis");
+        this._xAxisPath = this.toolPath.pushPlotter("xAxis", null, 1);
+        this._yAxisPath = this.toolPath.pushPlotter("yAxis", null, 1);
 
         this._fillStylePath = this._plotterPath.push("fill");
         this._lineStylePath = this._plotterPath.push("line");
@@ -272,5 +275,5 @@ export default class WeaveC3ScatterPlot extends AbstractTool {
         this.chart.destroy();
     }
 }
-
-//registerToolImplementation("weave.visualization.tools::ScatterPlotTool", WeaveC3ScatterPlot);
+WeavePanelManager.registerToolImplementation("weavetool.ScatterPlotTool", WeaveC3ScatterPlot);
+module.exports = WeaveC3ScatterPlot;

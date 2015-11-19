@@ -30,15 +30,15 @@ if (typeof window === 'undefined') {
 
         // set Probe and Selection keys
         Object.defineProperty(this, 'probeKeysPath', {
-            value: weave.path('defaultProbeKeySet').request('weavecore.LinkableVariable')
+            value: weave.path('defaultProbeKeySet')
         });
 
         Object.defineProperty(this, 'selectionKeysPath', {
-            value: weave.path('defaultSelectionKeySet').request('weavecore.LinkableVariable')
+            value: weave.path('defaultSelectionKeySet')
         });
 
         Object.defineProperty(this, 'filterKeysPath', {
-            value: weave.path('defaultSubsetKeyFilter').request('weavecore.LinkableVariable')
+            value: weave.path('defaultSubsetKeyFilter')
         });
 
 
@@ -58,8 +58,8 @@ if (typeof window === 'undefined') {
             value: WeaveAPI.globalHashMap.getObject('dataSources')
         });
 
-        this.selectionKeysPath.state([]);
-        this.probeKeysPath.state(null);
+        //this.selectionKeysPath.state([]);
+        //this.probeKeysPath.state(null);
 
         this.selectionKeysPath.addCallback(renderSelection.bind(this), false, true);
         this.probeKeysPath.addCallback(renderProbe.bind(this), false, true);
@@ -99,13 +99,18 @@ if (typeof window === 'undefined') {
     function updateDataSource() {
         if (this.hooks.childListCallbacks.lastObjectAdded) {
             var addedTool = this.hooks.childListCallbacks.lastObjectAdded;
-            addedTool.sessionData.dataSourceWatcher.targetPath = WeaveAPI.SessionManager.getPath(WeaveAPI.globalHashMap, this.dataSources.getObject(this.dataSources.getNames()[0]));
+            if (addedTool.sessionData)
+                addedTool.sessionData.dataSourceWatcher.targetPath = WeaveAPI.SessionManager.getPath(WeaveAPI.globalHashMap, this.dataSources.getObject(this.dataSources.getNames()[0]));
         }
         if (this.hooks.childListCallbacks.lastObjectRemoved) {
             var removedTool = this.hooks.childListCallbacks.lastObjectRemoved;
-            removedTool.sessionData.dataSourceWatcher.dispose();
-            WeaveAPI.SessionManager.disposeObject(removedTool.sessionData);
-            WeaveAPI.SessionManager.disposeObject(removedTool);
+            if (removedTool.sessionData) {
+                removedTool.sessionData.dataSourceWatcher.dispose();
+                WeaveAPI.SessionManager.disposeObject(removedTool.sessionData);
+                WeaveAPI.SessionManager.disposeObject(removedTool);
+            }
+
+
         }
     }
 
@@ -141,6 +146,18 @@ if (typeof window === 'undefined') {
      */
     p.requestHook = function (name, classDefn) {
         return this.hooks.requestObject(name, classDefn, false);
+    }
+
+
+    /**
+     * This function request for hook which is either instance of IlinkableObject or has sessionable property value true
+     * @method requestHook
+     * @param {String} name to identify the object in session state
+     * @param {String} className of sessionable Object
+     * @return {WeavePath}
+     */
+    p.requestHookPath = function (name, className) {
+        return this.hooksPath.push(name).request(className);
     }
 
     /**
@@ -183,5 +200,8 @@ if (typeof window === 'undefined') {
 
 
     adapter.peer.WeaveJSInterface = WeaveJSInterface;
+    //weavecore.ClassUtils.registerClass('adapter.peer.WeaveJSInterface', WeaveJSInterface);
+
+
 
 }());

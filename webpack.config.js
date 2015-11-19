@@ -40,12 +40,14 @@ module.exports = {
 	],
     externals: {
         "react": "React",
-        "lodash": "lodash",
+        "lodash": "_",
+        "jquery": "jquery",
         "d3": "d3",
         "c3": "c3",
         "d3chart": "d3chart",
         "weavecore": ["weavecore", "WeaveAPI"],
-        "weavedata": "weavedata"
+        "weavedata": "weavedata",
+        "weavetool": "weavedata"
     },
     resolve: {
         // ReStock: "src/",
