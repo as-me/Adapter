@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require(undefined), require("React"), require("d3chart"), require("c3"));
+		module.exports = factory(require(undefined), require("weavedata"), require("React"), require("d3chart"), require("c3"));
 	else if(typeof define === 'function' && define.amd)
-		define([, "React", "d3chart", "c3"], factory);
+		define([, "weavedata", "React", "d3chart", "c3"], factory);
 	else if(typeof exports === 'object')
-		exports["AsmeAdapter"] = factory(require(undefined), require("React"), require("d3chart"), require("c3"));
+		exports["AsmeAdapter"] = factory(require(undefined), require("weavedata"), require("React"), require("d3chart"), require("c3"));
 	else
-		root["AsmeAdapter"] = factory(root[undefined], root["React"], root["d3chart"], root["c3"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_6__, __WEBPACK_EXTERNAL_MODULE_8__, __WEBPACK_EXTERNAL_MODULE_10__, __WEBPACK_EXTERNAL_MODULE_14__) {
+		root["AsmeAdapter"] = factory(root[undefined], root["weavedata"], root["React"], root["d3chart"], root["c3"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_6__, __WEBPACK_EXTERNAL_MODULE_7__, __WEBPACK_EXTERNAL_MODULE_9__, __WEBPACK_EXTERNAL_MODULE_11__, __WEBPACK_EXTERNAL_MODULE_15__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -68,10 +68,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.components = {};
 
 	exports.components.D3 = {};
-	exports.components.D3.ScatterPlotTool = __webpack_require__(7);
+	exports.components.D3.ScatterPlotTool = __webpack_require__(8);
 
 	exports.components.C3 = {};
-	exports.components.C3.ScatterPlotTool = __webpack_require__(12);
+	exports.components.C3.ScatterPlotTool = __webpack_require__(13);
 
 	//namesapce
 	if (typeof window === 'undefined') {
@@ -267,6 +267,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	//namespace
 	__webpack_require__(6);
+	__webpack_require__(7);
 	if (typeof window === 'undefined') {
 	    undefined.adapter.peer = undefined.adapter.peer || {};
 	} else {
@@ -286,36 +287,48 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.activeHook = null;
 
 	        // set Probe and Selection keys
-	        Object.defineProperty(this, 'probeKeys', {
-	            value: WeaveAPI.globalHashMap.requestObject('probeKeys', weavecore.LinkableVariable, false)
+	        Object.defineProperty(this, 'probeKeysPath', {
+	            value: weave.path('defaultProbeKeySet')
 	        });
 
-	        Object.defineProperty(this, 'selectionKeys', {
-	            value: WeaveAPI.globalHashMap.requestObject('selectionKeys', weavecore.LinkableVariable, false)
+	        Object.defineProperty(this, 'selectionKeysPath', {
+	            value: weave.path('defaultSelectionKeySet')
+	        });
+
+	        Object.defineProperty(this, 'filterKeysPath', {
+	            value: weave.path('defaultSubsetKeyFilter')
+	        });
+
+	        Object.defineProperty(this, 'hooksPath', {
+	            value: weave.path('hooks').request('weavecore.LinkableHashMap')
+	        });
+
+	        Object.defineProperty(this, 'dataSourcesPath', {
+	            value: weave.path('dataSources').request('weavecore.LinkableHashMap')
 	        });
 
 	        Object.defineProperty(this, 'hooks', {
-	            value: WeaveAPI.globalHashMap.requestObject('hooks', weavecore.LinkableHashMap, false)
+	            value: WeaveAPI.globalHashMap.getObject('hooks')
 	        });
 
 	        Object.defineProperty(this, 'dataSources', {
-	            value: WeaveAPI.globalHashMap.requestObject('dataSources', weavecore.LinkableHashMap, false)
+	            value: WeaveAPI.globalHashMap.getObject('dataSources')
 	        });
 
-	        this.selectionKeys.setSessionState([]);
-	        this.probeKeys.setSessionState(null);
+	        //this.selectionKeysPath.state([]);
+	        //this.probeKeysPath.state(null);
 
-	        this.selectionKeys.addImmediateCallback(this, renderSelection.bind(this));
-	        this.probeKeys.addImmediateCallback(this, renderProbe.bind(this));
+	        this.selectionKeysPath.addCallback(renderSelection.bind(this), false, true);
+	        this.probeKeysPath.addCallback(renderProbe.bind(this), false, true);
 
-	        this.hooks.childListCallbacks.addImmediateCallback(this, updateDataSource.bind(this));
+	        this.hooks.childListCallbacks.addImmediateCallback(this, updateDataSource.bind(this), false, true);
 	    }
 
 	    WeaveJSInterface.prototype = new adapter.Interface();
 	    WeaveJSInterface.prototype.constructor = WeaveJSInterface;
 
 	    function renderSelection() {
-	        var keys = this.selectionKeys.getSessionState();
+	        var keys = this.selectionKeysPath.getState();
 	        console.log(keys);
 	        var hookedTools = this.hooks.getObjects();
 	        hookedTools.forEach((function (tool, index) {
@@ -328,10 +341,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    function renderProbe() {
-	        var key = this.probeKeys.getSessionState();
+	        var key = this.probeKeysPath.getState();
 	        var hookedTools = this.hooks.getObjects();
 	        hookedTools.forEach((function (tool, index) {
-	            if (tool.hook.chart != this.activeHook) tool.hook.doProbe(key);
+	            if (tool.hook.chart !== this.activeHook) tool.hook.doProbe(key);
 	        }).bind(this));
 	        this.activeHook = null;
 	    }
@@ -339,13 +352,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function updateDataSource() {
 	        if (this.hooks.childListCallbacks.lastObjectAdded) {
 	            var addedTool = this.hooks.childListCallbacks.lastObjectAdded;
-	            addedTool.sessionData.dataSourceWatcher.targetPath = WeaveAPI.SessionManager.getPath(WeaveAPI.globalHashMap, this.dataSources.getObject(this.dataSources.getNames()[0]));
+	            if (addedTool.sessionData) addedTool.sessionData.dataSourceWatcher.targetPath = WeaveAPI.SessionManager.getPath(WeaveAPI.globalHashMap, this.dataSources.getObject(this.dataSources.getNames()[0]));
 	        }
 	        if (this.hooks.childListCallbacks.lastObjectRemoved) {
 	            var removedTool = this.hooks.childListCallbacks.lastObjectRemoved;
-	            removedTool.sessionData.dataSourceWatcher.dispose();
-	            WeaveAPI.SessionManager.disposeObject(removedTool.sessionData);
-	            WeaveAPI.SessionManager.disposeObject(removedTool);
+	            if (removedTool.sessionData) {
+	                removedTool.sessionData.dataSourceWatcher.dispose();
+	                WeaveAPI.SessionManager.disposeObject(removedTool.sessionData);
+	                WeaveAPI.SessionManager.disposeObject(removedTool);
+	            }
 	        }
 	    }
 
@@ -358,7 +373,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     */
 	    p.doSelection = function (keys) {
 	        keys = keys.length > 0 ? keys : [];
-	        this.selectionKeys.setSessionState(keys);
+	        this.selectionKeysPath.state(keys);
 	    };
 
 	    /**
@@ -368,7 +383,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     */
 	    p.doProbe = function (key) {
 	        key = key !== undefined ? key : null;
-	        this.probeKeys.setSessionState(key);
+	        this.probeKeysPath.state(key);
 	    };
 
 	    /**
@@ -380,6 +395,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	     */
 	    p.requestHook = function (name, classDefn) {
 	        return this.hooks.requestObject(name, classDefn, false);
+	    };
+
+	    /**
+	     * This function request for hook which is either instance of IlinkableObject or has sessionable property value true
+	     * @method requestHook
+	     * @param {String} name to identify the object in session state
+	     * @param {String} className of sessionable Object
+	     * @return {WeavePath}
+	     */
+	    p.requestHookPath = function (name, className) {
+	        return this.hooksPath.push(name).request(className);
 	    };
 
 	    /**
@@ -418,6 +444,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // p.register
 
 	    adapter.peer.WeaveJSInterface = WeaveJSInterface;
+	    //weavecore.ClassUtils.registerClass('adapter.peer.WeaveJSInterface', WeaveJSInterface);
 	})();
 
 /***/ },
@@ -512,21 +539,27 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 7 */
+/***/ function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
+
+/***/ },
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _react = __webpack_require__(8);
+	var _react = __webpack_require__(9);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _ScatterPlotUI = __webpack_require__(9);
+	var _ScatterPlotUI = __webpack_require__(10);
 
 	var _ScatterPlotUI2 = _interopRequireDefault(_ScatterPlotUI);
 
-	__webpack_require__(11);
+	__webpack_require__(12);
 
 	__webpack_require__(6);
 
@@ -642,13 +675,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports) {
 
-	module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
+	module.exports = __WEBPACK_EXTERNAL_MODULE_9__;
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -663,9 +696,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	__webpack_require__(10);
+	__webpack_require__(11);
 
-	var _react = __webpack_require__(8);
+	var _react = __webpack_require__(9);
 
 	var _react2 = _interopRequireDefault(_react);
 
@@ -793,13 +826,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = D3ScatterPlot;
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports) {
 
-	module.exports = __WEBPACK_EXTERNAL_MODULE_10__;
+	module.exports = __WEBPACK_EXTERNAL_MODULE_11__;
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -966,22 +999,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _react = __webpack_require__(8);
+	var _react = __webpack_require__(9);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _ScatterPlotUI = __webpack_require__(13);
+	var _ScatterPlotUI = __webpack_require__(14);
 
 	var _ScatterPlotUI2 = _interopRequireDefault(_ScatterPlotUI);
 
-	__webpack_require__(11);
+	__webpack_require__(12);
 
 	__webpack_require__(6);
 
@@ -1107,7 +1140,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1122,11 +1155,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var _c3 = __webpack_require__(14);
+	var _c3 = __webpack_require__(15);
 
 	var _c32 = _interopRequireDefault(_c3);
 
-	var _react = __webpack_require__(8);
+	var _react = __webpack_require__(9);
 
 	var _react2 = _interopRequireDefault(_react);
 
@@ -1202,7 +1235,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        }
 	                    },
 	                    onmouseout: function onmouseout() {
-	                        WeaveAPI.globalHashMap.getObject('selectionKeys').setSessionState([]);
+	                        WeaveAPI.globalHashMap.getObject('defaultSelectionKeySet').setSessionState([]);
 	                    },
 	                    legend: {
 	                        show: false
@@ -1335,10 +1368,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = C3ScatterPlot;
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports) {
 
-	module.exports = __WEBPACK_EXTERNAL_MODULE_14__;
+	module.exports = __WEBPACK_EXTERNAL_MODULE_15__;
 
 /***/ }
 /******/ ])
