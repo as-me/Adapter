@@ -52,11 +52,14 @@ class WeaveC3ScatterPlot extends AbstractWeaveTool {
     constructor(props) {
         super(props);
         this._visualizationPath = this.toolPath.push("children", "visualization");
+        console.log('_visualizationPath:', this._visualizationPath);
         this._plotterPath = this.toolPath.pushPlotter("plot", null, 1); //1 - as the tool is in depth level 1
-
+        console.log('_plotterPath:', this._plotterPath);
         this._dataXPath = this._plotterPath.push("dataX");
+        console.log('_dataXPath:', this._dataXPath);
         this._dataYPath = this._plotterPath.push("dataY");
         this._xAxisPath = this.toolPath.pushPlotter("xAxis", null, 1);
+        console.log('_xAxisPath:', this._xAxisPath);
         this._yAxisPath = this.toolPath.pushPlotter("yAxis", null, 1);
 
         this._fillStylePath = this._plotterPath.push("fill");
@@ -68,7 +71,7 @@ class WeaveC3ScatterPlot extends AbstractWeaveTool {
         this._plotterPath.addCallback(() => {
             this.plotterState = this._plotterPath.getState();
             this._dataChanged();
-        }, true);
+        }, false, true);
 
         this._c3Options = {
             bindto: this.element,
@@ -152,25 +155,25 @@ class WeaveC3ScatterPlot extends AbstractWeaveTool {
 
         this.chart = c3.generate(this._c3Options);
 
-        this._setupCallbacks();
+        this._setupCallbacks.call(this);
     }
 
     _setupCallbacks() {
-        var dataChanged = lodash.debounce(this._dataChanged.bind(this), 100);
+        //var dataChanged = lodash.debounce(this._dataChanged.bind(this), 100);
 
         [this._dataXPath, this._dataYPath, this._sizeByPath, this._fillStylePath, this._lineStylePath].forEach((path) => {
-            path.addCallback(dataChanged, true, false);
+            path.addCallback(this._dataChanged.bind(this), false, true);
         });
 
         var axisChanged = lodash.debounce(this._axisChanged.bind(this), 100);
         [this._dataXPath, this._dataYPath, this._xAxisPath, this._yAxisPath].forEach((path) => {
-            path.addCallback(axisChanged, true, false);
+            path.addCallback(axisChanged, false, true);
         });
 
-        this.toolPath.selection_keyset.addCallback(this._selectionKeysChanged.bind(this), true, false);
+        this.toolPath.selection_keyset.addCallback(this._selectionKeysChanged.bind(this), false, true);
 
         //console.log(this.toolPath.probe_keyset);
-        this.toolPath.probe_keyset.addCallback(this._probedKeysChanged.bind(this), true, false);
+        this.toolPath.probe_keyset.addCallback(this._probedKeysChanged.bind(this), false, true);
 
     }
 
